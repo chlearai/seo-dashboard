@@ -1,0 +1,14 @@
+node_modules/
+.next/
+out/
+dist/
+coverage/
+playwright-report/
+test-results/
+.gstack/
+tsconfig.tsbuildinfo
+.DS_Store
+.env
+.env.local
+.env.*.local
+npm-debug.log*
