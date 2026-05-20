@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { Delta, MetricCard, PageHeader, ScorePill } from "@/components/ui";
-import { getLatestScan } from "@/lib/rankflow-data";
-import type { Workspace } from "@/lib/rankflow-types";
+import { getLatestScan, type Workspace } from "@rankflow/shared";
 
 export function ClientPortal({ workspace }: { workspace: Workspace }) {
   const scan = getLatestScan(workspace);

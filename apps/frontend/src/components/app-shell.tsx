@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { workspaces } from "@/lib/rankflow-data";
 
 const modules = [
   "Dashboard",
@@ -27,7 +26,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
         <div className="workspace-select">
           <span>Workspace</span>
-          <strong>{workspaces[0].clientName}</strong>
+          <strong>Aurora Education Group</strong>
         </div>
 
         <p className="nav-section-title">Modules</p>

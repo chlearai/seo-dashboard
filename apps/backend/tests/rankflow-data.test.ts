@@ -5,7 +5,7 @@ import {
   getWorkspaceById,
   scoreHealth,
   workspaces
-} from "../src/lib/rankflow-data";
+} from "../src/rankflow-data";
 
 describe("rankflow domain data", () => {
   it("classifies score health with operational labels", () => {

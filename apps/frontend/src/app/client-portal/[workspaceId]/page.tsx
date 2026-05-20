@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import { ClientPortal } from "@/components/client-portal";
-import { getWorkspaceById, workspaces } from "@/lib/rankflow-data";
+import { getWorkspace } from "@/lib/rankflow-api";
 
 interface ClientPortalPageProps {
   params: Promise<{
@@ -8,19 +8,14 @@ interface ClientPortalPageProps {
   }>;
 }
 
-export function generateStaticParams() {
-  return workspaces.map((workspace) => ({
-    workspaceId: workspace.id
-  }));
-}
+export const dynamic = "force-dynamic";
 
 export default async function ClientPortalPage({ params }: ClientPortalPageProps) {
   const { workspaceId } = await params;
-  const workspace = getWorkspaceById(workspaceId);
-
-  if (!workspace) {
+  try {
+    const workspace = await getWorkspace(workspaceId);
+    return <ClientPortal workspace={workspace} />;
+  } catch {
     notFound();
   }
-
-  return <ClientPortal workspace={workspace} />;
 }

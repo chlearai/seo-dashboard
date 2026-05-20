@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { Delta, MetricCard, PageHeader, ScorePill, ToneBadge } from "@/components/ui";
-import { getLatestScan } from "@/lib/rankflow-data";
-import type { HodSummary, Workspace } from "@/lib/rankflow-types";
+import { getLatestScan, type HodSummary, type Workspace } from "@rankflow/shared";
 
 export function HodCommandCentre({
   summary,

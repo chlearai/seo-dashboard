@@ -1,6 +1,5 @@
 import Link from "next/link";
-import type { ScoreTone, Severity } from "@/lib/rankflow-types";
-import { scoreHealth } from "@/lib/rankflow-data";
+import { scoreHealth, type ScoreTone, type Severity } from "@rankflow/shared";
 
 export function MetricCard({
   label,

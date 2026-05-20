@@ -1,0 +1,19 @@
+{
+  "name": "@rankflow/backend",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "tsx src/server.ts",
+    "build": "tsc --noEmit -p tsconfig.json",
+    "start": "tsx src/server.ts",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@rankflow/shared": "0.1.0"
+  },
+  "devDependencies": {
+    "tsx": "^4.21.0"
+  }
+}
