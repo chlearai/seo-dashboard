@@ -1,9 +1,5 @@
 import { createServer, type ServerResponse } from "node:http";
-import {
-  getHodSummary,
-  getWorkspaceById,
-  workspaces
-} from "./rankflow-data";
+import { rankFlowRepository } from "./repositories/rankflow-repository";
 
 const port = Number(process.env.PORT ?? 4000);
 
@@ -17,7 +13,7 @@ function jsonResponse(response: ServerResponse, statusCode: number, body: unknow
   response.end(JSON.stringify(body));
 }
 
-const server = createServer((request, response) => {
+const server = createServer(async (request, response) => {
   if (!request.url) {
     jsonResponse(response, 400, { error: "Missing request URL" });
     return;
@@ -41,23 +37,54 @@ const server = createServer((request, response) => {
   }
 
   if (url.pathname === "/api/hod/summary") {
-    jsonResponse(response, 200, getHodSummary(workspaces));
+    jsonResponse(response, 200, await rankFlowRepository.getHodSummary());
     return;
   }
 
   if (url.pathname === "/api/workspaces") {
-    jsonResponse(response, 200, workspaces);
+    jsonResponse(response, 200, await rankFlowRepository.listWorkspaces());
     return;
   }
 
   const workspaceMatch = url.pathname.match(/^\/api\/workspaces\/([^/]+)$/);
   if (workspaceMatch) {
-    const workspace = getWorkspaceById(workspaceMatch[1]);
+    const workspace = await rankFlowRepository.getWorkspace(workspaceMatch[1]);
     if (!workspace) {
       jsonResponse(response, 404, { error: "Workspace not found" });
       return;
     }
     jsonResponse(response, 200, workspace);
+    return;
+  }
+
+  const workspaceCollectionMatch = url.pathname.match(
+    /^\/api\/workspaces\/([^/]+)\/(scans|audit-categories|suggestions|tasks)$/
+  );
+  if (workspaceCollectionMatch) {
+    const [, workspaceId, collection] = workspaceCollectionMatch;
+    const workspace = await rankFlowRepository.getWorkspace(workspaceId);
+
+    if (!workspace) {
+      jsonResponse(response, 404, { error: "Workspace not found" });
+      return;
+    }
+
+    if (collection === "scans") {
+      jsonResponse(response, 200, await rankFlowRepository.listScans(workspaceId));
+      return;
+    }
+
+    if (collection === "audit-categories") {
+      jsonResponse(response, 200, await rankFlowRepository.listAuditCategories(workspaceId));
+      return;
+    }
+
+    if (collection === "suggestions") {
+      jsonResponse(response, 200, await rankFlowRepository.listSuggestions(workspaceId));
+      return;
+    }
+
+    jsonResponse(response, 200, await rankFlowRepository.listTasks(workspaceId));
     return;
   }
 

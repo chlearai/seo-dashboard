@@ -38,8 +38,22 @@ npm run dev:frontend
 - `GET /api/hod/summary`
 - `GET /api/workspaces`
 - `GET /api/workspaces/:id`
+- `GET /api/workspaces/:id/scans`
+- `GET /api/workspaces/:id/audit-categories`
+- `GET /api/workspaces/:id/suggestions`
+- `GET /api/workspaces/:id/tasks`
 
 The frontend reads RankFlow data through backend APIs. Shared TypeScript contracts live in `packages/shared`.
+
+## Database
+
+The initial Supabase/Postgres schema lives in:
+
+```txt
+supabase/migrations/202605200001_rankflow_backend_foundation.sql
+```
+
+The backend currently uses a fixture repository that implements the same repository interface planned for Supabase-backed data access.
 
 ## Verification
 
