@@ -19,3 +19,21 @@ test("client portal preview hides internal command centre framing", async ({ pag
   await expect(page.getByRole("heading", { name: /Aurora Education Group SEO progress/i })).toBeVisible();
   await expect(page.getByText("Client portal preview")).toBeVisible();
 });
+
+test("workspace module routes render scan, audit, suggestion, and workbook surfaces", async ({ page }) => {
+  await page.goto("/workspaces/aurora-education/scans");
+  await expect(page.getByRole("heading", { name: /Aurora Education Group scan history/i })).toBeVisible();
+  await expect(page.getByText("Critical Resolved")).toBeVisible();
+
+  await page.goto("/workspaces/aurora-education/audit");
+  await expect(page.getByRole("heading", { name: /Aurora Education Group category health/i })).toBeVisible();
+  await expect(page.getByText("Title Tags", { exact: true })).toBeVisible();
+
+  await page.goto("/workspaces/aurora-education/suggestions");
+  await expect(page.getByRole("heading", { name: /source-backed recommendations/i })).toBeVisible();
+  await expect(page.getByText("Quick Wins")).toBeVisible();
+
+  await page.goto("/workspaces/aurora-education/workbook");
+  await expect(page.getByRole("heading", { name: /Aurora Education Group execution board/i })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "In Progress" })).toBeVisible();
+});

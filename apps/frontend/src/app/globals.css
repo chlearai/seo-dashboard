@@ -394,6 +394,54 @@ input {
   gap: 12px;
 }
 
+.module-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.module-card {
+  display: grid;
+  min-height: 116px;
+  align-content: space-between;
+  gap: 12px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface);
+  padding: 14px;
+  box-shadow: var(--shadow);
+}
+
+.module-card:hover {
+  border-color: var(--blue);
+}
+
+.module-card strong {
+  color: var(--blue);
+}
+
+.module-card span {
+  color: var(--text-soft);
+  font-size: 13px;
+  line-height: 1.35;
+}
+
+.module-list {
+  display: grid;
+  gap: 12px;
+}
+
+.card-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.kanban-column {
+  min-width: 0;
+}
+
 .task-board {
   grid-template-columns: repeat(4, minmax(0, 1fr));
 }
@@ -491,6 +539,7 @@ input {
 
   .summary-grid,
   .audit-grid,
+  .module-grid,
   .task-board {
     grid-template-columns: 1fr;
   }

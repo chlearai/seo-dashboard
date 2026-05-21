@@ -33,6 +33,18 @@ export const workspaces: Workspace[] = [
         delta: 8,
         issues: { critical: 2, high: 11, medium: 27, low: 44 },
         suggestionsGenerated: 38
+      },
+      {
+        id: "scan-aurora-0506",
+        type: "Full Site Crawl",
+        completedAt: "2026-05-06 08:45",
+        status: "Completed",
+        pagesCrawled: 801,
+        keywordsChecked: 408,
+        score: 78,
+        delta: 4,
+        issues: { critical: 6, high: 15, medium: 25, low: 51 },
+        suggestionsGenerated: 27
       }
     ],
     auditCategories: [
@@ -62,11 +74,24 @@ export const workspaces: Workspace[] = [
         status: "Accepted",
         severity: "medium",
         estimatedImpact: "Medium"
+      },
+      {
+        id: "sug-aurora-3",
+        checkId: "MD-04",
+        page: "/executive-mba",
+        title: "Add an action-oriented meta description",
+        recommendation: "Use a concise admissions CTA and include the executive MBA keyword naturally.",
+        source: "On-Page Deep Audit, MD-04",
+        status: "Implemented",
+        severity: "low",
+        estimatedImpact: "Low"
       }
     ],
     tasks: [
       { id: "task-aurora-1", title: "Optimize MBA admissions title and H1", owner: "Rohan Mehta", priority: "high", status: "In Progress", dueDate: "2026-05-21", evidenceRequired: true },
-      { id: "task-aurora-2", title: "Publish course FAQ schema", owner: "Anika Rao", priority: "medium", status: "Review", dueDate: "2026-05-22", evidenceRequired: true }
+      { id: "task-aurora-2", title: "Publish course FAQ schema", owner: "Anika Rao", priority: "medium", status: "Review", dueDate: "2026-05-22", evidenceRequired: true },
+      { id: "task-aurora-3", title: "Refresh executive MBA meta descriptions", owner: "Rohan Mehta", priority: "low", status: "Done", dueDate: "2026-05-18", evidenceRequired: true },
+      { id: "task-aurora-4", title: "Map admissions keywords to priority pages", owner: "Maya Iyer", priority: "medium", status: "Backlog", dueDate: "2026-05-25", evidenceRequired: false }
     ]
   },
   {
@@ -94,6 +119,18 @@ export const workspaces: Workspace[] = [
         delta: -7,
         issues: { critical: 6, high: 14, medium: 31, low: 52 },
         suggestionsGenerated: 51
+      },
+      {
+        id: "scan-nimbus-0505",
+        type: "Performance Scan",
+        completedAt: "2026-05-05 16:20",
+        status: "Completed",
+        pagesCrawled: 308,
+        keywordsChecked: 184,
+        score: 68,
+        delta: 2,
+        issues: { critical: 3, high: 10, medium: 28, low: 49 },
+        suggestionsGenerated: 34
       }
     ],
     auditCategories: [

@@ -1,4 +1,4 @@
-import type { HodSummary, Workspace } from "@rankflow/shared";
+import type { AiSuggestion, AuditCategory, HodSummary, ScanSnapshot, WorkbookTask, Workspace } from "@rankflow/shared";
 
 const apiBaseUrl = process.env.RANKFLOW_API_URL ?? "http://127.0.0.1:4000";
 
@@ -25,4 +25,20 @@ export async function getHodCommandCentreData() {
 
 export async function getWorkspace(workspaceId: string) {
   return fetchJson<Workspace>(`/api/workspaces/${workspaceId}`);
+}
+
+export async function getWorkspaceScans(workspaceId: string) {
+  return fetchJson<ScanSnapshot[]>(`/api/workspaces/${workspaceId}/scans`);
+}
+
+export async function getWorkspaceAuditCategories(workspaceId: string) {
+  return fetchJson<AuditCategory[]>(`/api/workspaces/${workspaceId}/audit-categories`);
+}
+
+export async function getWorkspaceSuggestions(workspaceId: string) {
+  return fetchJson<AiSuggestion[]>(`/api/workspaces/${workspaceId}/suggestions`);
+}
+
+export async function getWorkspaceTasks(workspaceId: string) {
+  return fetchJson<WorkbookTask[]>(`/api/workspaces/${workspaceId}/tasks`);
 }

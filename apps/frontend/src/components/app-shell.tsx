@@ -1,15 +1,15 @@
 import Link from "next/link";
 
 const modules = [
-  "Dashboard",
-  "Scan History",
-  "On-Page Audit",
-  "AI Suggestions",
-  "Keywords",
-  "Workbook",
-  "Off-Page",
-  "Competitors",
-  "Reports"
+  { label: "Dashboard", href: "/" },
+  { label: "Scan History", href: "/workspaces/aurora-education/scans" },
+  { label: "On-Page Audit", href: "/workspaces/aurora-education/audit" },
+  { label: "AI Suggestions", href: "/workspaces/aurora-education/suggestions" },
+  { label: "Keywords", href: "#" },
+  { label: "Workbook", href: "/workspaces/aurora-education/workbook" },
+  { label: "Off-Page", href: "#" },
+  { label: "Competitors", href: "#" },
+  { label: "Reports", href: "#" }
 ];
 
 export function AppShell({ children }: { children: React.ReactNode }) {
@@ -32,10 +32,10 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         <p className="nav-section-title">Modules</p>
         <ul className="nav-list">
           {modules.map((module, index) => (
-            <li key={module}>
-              <Link className={`nav-link ${index === 0 ? "active" : ""}`} href={index === 0 ? "/" : "#"}>
-                {module}
-                {module === "AI Suggestions" ? <span className="badge high">112</span> : null}
+            <li key={module.label}>
+              <Link className={`nav-link ${index === 0 ? "active" : ""}`} href={module.href}>
+                {module.label}
+                {module.label === "AI Suggestions" ? <span className="badge high">112</span> : null}
               </Link>
             </li>
           ))}

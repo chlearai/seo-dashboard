@@ -71,6 +71,28 @@ export interface WorkbookTask {
   evidenceRequired: boolean;
 }
 
+export interface ScanComparison {
+  scoreDelta: number;
+  resolvedCritical: number;
+  newCritical: number;
+  issueDelta: SeverityCounts;
+  suggestionsDelta: number;
+}
+
+export interface SuggestionInboxSummary {
+  total: number;
+  newCount: number;
+  acceptedCount: number;
+  implementedCount: number;
+  rejectedCount: number;
+  quickWins: number;
+}
+
+export interface WorkbookStatusColumn {
+  status: WorkbookTask["status"];
+  tasks: WorkbookTask[];
+}
+
 export interface Workspace {
   id: string;
   clientName: string;

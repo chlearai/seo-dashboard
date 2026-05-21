@@ -19,10 +19,10 @@ describe("FixtureRankFlowRepository", () => {
   });
 
   it("returns workspace-owned collections independently", async () => {
-    await expect(repository.listScans("aurora-education")).resolves.toHaveLength(1);
+    await expect(repository.listScans("aurora-education")).resolves.toHaveLength(2);
     await expect(repository.listAuditCategories("aurora-education")).resolves.toHaveLength(3);
-    await expect(repository.listSuggestions("aurora-education")).resolves.toHaveLength(2);
-    await expect(repository.listTasks("aurora-education")).resolves.toHaveLength(2);
+    await expect(repository.listSuggestions("aurora-education")).resolves.toHaveLength(3);
+    await expect(repository.listTasks("aurora-education")).resolves.toHaveLength(4);
   });
 
   it("returns empty collections for unknown workspaces", async () => {

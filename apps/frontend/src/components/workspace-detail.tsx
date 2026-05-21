@@ -52,6 +52,25 @@ export function WorkspaceDetail({ workspace }: { workspace: Workspace }) {
         </div>
       </section>
 
+      <section className="module-grid" aria-label="Workspace modules">
+        <Link className="module-card" href={`/workspaces/${workspace.id}/scans`}>
+          <strong>Scan History</strong>
+          <span>Versioned crawl snapshots and score comparison</span>
+        </Link>
+        <Link className="module-card" href={`/workspaces/${workspace.id}/audit`}>
+          <strong>On-Page Audit</strong>
+          <span>Category health and failed checks by severity</span>
+        </Link>
+        <Link className="module-card" href={`/workspaces/${workspace.id}/suggestions`}>
+          <strong>AI Suggestions</strong>
+          <span>Source-backed fixes with workflow status</span>
+        </Link>
+        <Link className="module-card" href={`/workspaces/${workspace.id}/workbook`}>
+          <strong>SEO Workbook</strong>
+          <span>Kanban execution queue with owners and evidence</span>
+        </Link>
+      </section>
+
       <section className="panel">
         <p className="eyebrow">On-page audit</p>
         <h2>Category health</h2>
