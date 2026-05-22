@@ -1,16 +1,32 @@
 import Link from "next/link";
+import {
+  BarChart3,
+  Bell,
+  ClipboardList,
+  FileText,
+  LayoutDashboard,
+  ListChecks,
+  MessageSquareText,
+  PanelLeft,
+  Plus,
+  Search,
+  Sparkles,
+  Target,
+  UserRound
+} from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 import { canPerformAction, type RankFlowModule, type RankFlowSession } from "@rankflow/shared";
 
-const modules: Array<{ id: RankFlowModule; label: string; href: string }> = [
-  { id: "dashboard", label: "Dashboard", href: "/" },
-  { id: "scan-history", label: "Scan History", href: "/workspaces/aurora-education/scans" },
-  { id: "on-page-audit", label: "On-Page Audit", href: "/workspaces/aurora-education/audit" },
-  { id: "ai-suggestions", label: "AI Suggestions", href: "/workspaces/aurora-education/suggestions" },
-  { id: "keywords", label: "Keywords", href: "/workspaces/aurora-education/keywords" },
-  { id: "workbook", label: "Workbook", href: "/workspaces/aurora-education/workbook" },
-  { id: "reports", label: "Reports", href: "/workspaces/aurora-education/reports" },
-  { id: "client-portal", label: "Client Portal", href: "/client-portal/aurora-education" }
-];
+const modules = [
+  { id: "dashboard", label: "Dashboard", href: "/", Icon: LayoutDashboard },
+  { id: "scan-history", label: "Scan History", href: "/workspaces/aurora-education/scans", Icon: BarChart3 },
+  { id: "on-page-audit", label: "On-Page Audit", href: "/workspaces/aurora-education/audit", Icon: ListChecks },
+  { id: "ai-suggestions", label: "AI Suggestions", href: "/workspaces/aurora-education/suggestions", Icon: Sparkles },
+  { id: "keywords", label: "Keywords", href: "/workspaces/aurora-education/keywords", Icon: Target },
+  { id: "workbook", label: "Workbook", href: "/workspaces/aurora-education/workbook", Icon: ClipboardList },
+  { id: "reports", label: "Reports", href: "/workspaces/aurora-education/reports", Icon: FileText },
+  { id: "client-portal", label: "Client Portal", href: "/client-portal/aurora-education", Icon: MessageSquareText }
+] satisfies Array<{ id: RankFlowModule; label: string; href: string; Icon: LucideIcon }>;
 
 export function AppShell({
   children,
@@ -38,13 +54,19 @@ export function AppShell({
         </Link>
 
         <div className="workspace-select">
-          <span>Workspace</span>
+          <span>
+            <PanelLeft size={14} aria-hidden="true" />
+            Workspace
+          </span>
           <strong>Aurora Education Group</strong>
           <small>{session.user.organizationName}</small>
         </div>
 
         <div className="workspace-select access-card">
-          <span>Active role</span>
+          <span>
+            <UserRound size={14} aria-hidden="true" />
+            Active role
+          </span>
           <strong>{session.user.fullName}</strong>
           <small>{session.user.role.replace("_", " ")} access</small>
         </div>
@@ -54,7 +76,10 @@ export function AppShell({
           {visibleModules.map((module, index) => (
             <li key={module.label}>
               <Link className={`nav-link ${index === 0 ? "active" : ""}`} href={module.href}>
-                {module.label}
+                <span>
+                  <module.Icon size={16} aria-hidden="true" />
+                  {module.label}
+                </span>
                 {module.label === "AI Suggestions" ? <span className="badge high">112</span> : null}
               </Link>
             </li>
@@ -64,16 +89,24 @@ export function AppShell({
 
       <div className="main">
         <header className="topbar">
-          <input
-            className="search"
-            aria-label="Global search"
-            placeholder="Search workspace, page, keyword, task, or team member"
-          />
+          <label className="search-wrap">
+            <Search size={17} aria-hidden="true" />
+            <input
+              className="search"
+              aria-label="Global search"
+              placeholder="Search workspace, page, keyword, task, or team member"
+            />
+          </label>
           <div className="top-actions">
+            <button className="icon-button" type="button" aria-label="Notifications">
+              <Bell size={17} aria-hidden="true" />
+            </button>
             <button className="button" type="button" disabled={!canRunScan}>
+              <BarChart3 size={16} aria-hidden="true" />
               Run Scan
             </button>
             <button className="button primary" type="button" disabled={!canAssignTask}>
+              <Plus size={16} aria-hidden="true" />
               New Task
             </button>
           </div>

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ArrowUpRight } from "lucide-react";
 import { scoreHealth, type ScoreTone, type Severity } from "@rankflow/shared";
 
 export function MetricCard({
@@ -75,6 +76,7 @@ export function PageHeader({
       {actionHref && actionLabel ? (
         <Link className="button primary" href={actionHref}>
           {actionLabel}
+          <ArrowUpRight size={16} aria-hidden="true" />
         </Link>
       ) : null}
     </header>
