@@ -1,11 +1,48 @@
 import type {
   HodSummary,
+  RankFlowSession,
   SeverityCounts,
   Workspace
 } from "@rankflow/shared";
 import { getLatestScan, scoreHealth } from "@rankflow/shared";
 
 export { getLatestScan, scoreHealth };
+
+export const currentSession: RankFlowSession = {
+  activeWorkspaceId: "aurora-education",
+  visibleModules: ["dashboard", "scan-history", "on-page-audit", "ai-suggestions", "keywords", "workbook", "reports"],
+  user: {
+    id: "user-maya-hod",
+    email: "maya.hod@rankflow.example",
+    fullName: "Maya Iyer",
+    role: "hod",
+    organizationName: "RankFlow Demo Agency",
+    workspaceAccess: [
+      {
+        workspaceId: "aurora-education",
+        role: "manager",
+        modulesEnabled: ["dashboard", "scan-history", "on-page-audit", "ai-suggestions", "keywords", "workbook", "reports"],
+        canAssignTasks: true,
+        suggestionAccess: "full",
+        canGenerateReports: true,
+        canSeeInternalNotes: true,
+        canRunScans: true,
+        canExport: true
+      },
+      {
+        workspaceId: "nimbus-health",
+        role: "manager",
+        modulesEnabled: ["dashboard", "scan-history", "on-page-audit", "ai-suggestions", "keywords", "workbook", "reports"],
+        canAssignTasks: true,
+        suggestionAccess: "full",
+        canGenerateReports: true,
+        canSeeInternalNotes: true,
+        canRunScans: true,
+        canExport: true
+      }
+    ]
+  }
+};
 
 export const workspaces: Workspace[] = [
   {

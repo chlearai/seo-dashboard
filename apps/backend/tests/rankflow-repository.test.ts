@@ -18,6 +18,17 @@ describe("FixtureRankFlowRepository", () => {
     });
   });
 
+  it("returns the active RBAC session", async () => {
+    await expect(repository.getSession()).resolves.toMatchObject({
+      activeWorkspaceId: "aurora-education",
+      user: {
+        role: "hod",
+        organizationName: "RankFlow Demo Agency"
+      },
+      visibleModules: expect.arrayContaining(["dashboard", "workbook", "reports"])
+    });
+  });
+
   it("returns workspace-owned collections independently", async () => {
     await expect(repository.listScans("aurora-education")).resolves.toHaveLength(2);
     await expect(repository.listAuditCategories("aurora-education")).resolves.toHaveLength(3);

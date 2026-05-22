@@ -41,6 +41,11 @@ const server = createServer(async (request, response) => {
     return;
   }
 
+  if (url.pathname === "/api/session") {
+    jsonResponse(response, 200, await rankFlowRepository.getSession());
+    return;
+  }
+
   if (url.pathname === "/api/workspaces") {
     jsonResponse(response, 200, await rankFlowRepository.listWorkspaces());
     return;

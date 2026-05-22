@@ -4,6 +4,28 @@ export type WorkspaceStatus = "Delivering" | "At Risk" | "Active" | "Paused";
 
 export type ScoreTone = "success" | "warning" | "critical";
 
+export type RankFlowRole = "super_admin" | "hod" | "manager" | "specialist" | "analyst" | "client";
+
+export type RankFlowModule =
+  | "dashboard"
+  | "scan-history"
+  | "on-page-audit"
+  | "ai-suggestions"
+  | "keywords"
+  | "workbook"
+  | "reports"
+  | "client-portal";
+
+export type RankFlowAction =
+  | "create-workspace"
+  | "delete-workspace"
+  | "run-scan"
+  | "assign-task"
+  | "update-task"
+  | "review-suggestion"
+  | "generate-report"
+  | "view-client-portal";
+
 export interface ScoreHealth {
   label: "Excellent" | "Healthy" | "Watch" | "At Risk";
   tone: ScoreTone;
@@ -137,6 +159,33 @@ export interface ReportReadinessSummary {
   needsReview: number;
   drafts: number;
   averageReadiness: number;
+}
+
+export interface WorkspaceAccess {
+  workspaceId: string;
+  role: RankFlowRole;
+  modulesEnabled: RankFlowModule[];
+  canAssignTasks: boolean;
+  suggestionAccess: "full" | "view-only" | "none";
+  canGenerateReports: boolean;
+  canSeeInternalNotes: boolean;
+  canRunScans: boolean;
+  canExport: boolean;
+}
+
+export interface RankFlowUser {
+  id: string;
+  email: string;
+  fullName: string;
+  role: RankFlowRole;
+  organizationName: string;
+  workspaceAccess: WorkspaceAccess[];
+}
+
+export interface RankFlowSession {
+  user: RankFlowUser;
+  activeWorkspaceId: string;
+  visibleModules: RankFlowModule[];
 }
 
 export interface Workspace {

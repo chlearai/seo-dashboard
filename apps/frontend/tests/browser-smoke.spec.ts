@@ -3,6 +3,8 @@ import { expect, test } from "@playwright/test";
 test("HOD command centre renders the SaaS operating view", async ({ page }) => {
   await page.goto("/");
   await expect(page.getByRole("heading", { name: /all clients, scans/i })).toBeVisible();
+  await expect(page.getByText("hod access")).toBeVisible();
+  await expect(page.getByRole("link", { name: /Reports/ })).toBeVisible();
   await expect(page.getByRole("link", { name: /Aurora Education Group/ })).toBeVisible();
   await expect(page.getByRole("link", { name: /Nimbus Health Clinics/ })).toBeVisible();
 });

@@ -3,6 +3,7 @@ import type {
   AuditCategory,
   HodSummary,
   KeywordRanking,
+  RankFlowSession,
   ReportSnapshot,
   ScanSnapshot,
   WorkbookTask,
@@ -58,4 +59,8 @@ export async function getWorkspaceKeywords(workspaceId: string) {
 
 export async function getWorkspaceReports(workspaceId: string) {
   return fetchJson<ReportSnapshot[]>(`/api/workspaces/${workspaceId}/reports`);
+}
+
+export async function getSession() {
+  return fetchJson<RankFlowSession>("/api/session");
 }

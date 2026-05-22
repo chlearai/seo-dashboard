@@ -2,6 +2,9 @@ import type {
   AiSuggestion,
   KeywordRanking,
   KeywordSummary,
+  RankFlowAction,
+  RankFlowModule,
+  RankFlowRole,
   ReportReadinessSummary,
   ReportSnapshot,
   ScanComparison,
@@ -10,6 +13,7 @@ import type {
   SuggestionInboxSummary,
   WorkbookStatusColumn,
   WorkbookTask,
+  WorkspaceAccess,
   Workspace
 } from "./rankflow-types";
 
@@ -92,4 +96,60 @@ export function getReportReadinessSummary(reports: ReportSnapshot[]): ReportRead
     drafts: reports.filter((report) => report.status === "Draft").length,
     averageReadiness: reports.length ? Math.round(totalReadiness / reports.length) : 0
   };
+}
+
+export function hasWorkspaceAccess(
+  role: RankFlowRole,
+  accessList: WorkspaceAccess[],
+  workspaceId: string
+): boolean {
+  if (role === "super_admin" || role === "hod") return true;
+  return accessList.some((access) => access.workspaceId === workspaceId);
+}
+
+export function canAccessModule(
+  role: RankFlowRole,
+  access: WorkspaceAccess | undefined,
+  module: RankFlowModule
+): boolean {
+  if (role === "super_admin" || role === "hod") return true;
+  if (role === "client") return module === "client-portal";
+  return Boolean(access?.modulesEnabled.includes(module));
+}
+
+export function getVisibleModules(role: RankFlowRole, accessList: WorkspaceAccess[]): RankFlowModule[] {
+  if (role === "client") return ["client-portal"];
+
+  if (role === "super_admin" || role === "hod") {
+    return ["dashboard", "scan-history", "on-page-audit", "ai-suggestions", "keywords", "workbook", "reports"];
+  }
+
+  return Array.from(new Set(accessList.flatMap((access) => access.modulesEnabled)));
+}
+
+export function canPerformAction(
+  role: RankFlowRole,
+  action: RankFlowAction,
+  access?: WorkspaceAccess
+): boolean {
+  if (role === "super_admin" || role === "hod") return true;
+
+  if (role === "client") {
+    return action === "view-client-portal";
+  }
+
+  if (!access) return false;
+
+  if (action === "create-workspace" || action === "delete-workspace") {
+    return role === "manager";
+  }
+
+  if (action === "run-scan") return access.canRunScans;
+  if (action === "assign-task") return access.canAssignTasks;
+  if (action === "update-task") return role === "manager" || role === "specialist";
+  if (action === "review-suggestion") return access.suggestionAccess === "full";
+  if (action === "generate-report") return access.canGenerateReports;
+  if (action === "view-client-portal") return true;
+
+  return false;
 }

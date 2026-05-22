@@ -36,6 +36,7 @@ npm run dev:frontend
 
 - `GET /health`
 - `GET /api/hod/summary`
+- `GET /api/session`
 - `GET /api/workspaces`
 - `GET /api/workspaces/:id`
 - `GET /api/workspaces/:id/scans`
@@ -54,6 +55,7 @@ The initial Supabase/Postgres schema lives in:
 ```txt
 supabase/migrations/202605200001_rankflow_backend_foundation.sql
 supabase/migrations/202605210001_rankflow_growth_modules.sql
+supabase/migrations/202605220001_rankflow_access_control.sql
 ```
 
 The backend currently uses a fixture repository that implements the same repository interface planned for Supabase-backed data access.

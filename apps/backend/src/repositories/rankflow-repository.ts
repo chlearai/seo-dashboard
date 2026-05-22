@@ -3,16 +3,18 @@ import type {
   AuditCategory,
   HodSummary,
   KeywordRanking,
+  RankFlowSession,
   ReportSnapshot,
   ScanSnapshot,
   WorkbookTask,
   Workspace
 } from "@rankflow/shared";
-import { getHodSummary, getWorkspaceById, workspaces } from "../rankflow-data";
+import { currentSession, getHodSummary, getWorkspaceById, workspaces } from "../rankflow-data";
 
 export interface RankFlowRepository {
   listWorkspaces(): Promise<Workspace[]>;
   getWorkspace(id: string): Promise<Workspace | undefined>;
+  getSession(): Promise<RankFlowSession>;
   getHodSummary(): Promise<HodSummary>;
   listScans(workspaceId: string): Promise<ScanSnapshot[]>;
   listAuditCategories(workspaceId: string): Promise<AuditCategory[]>;
@@ -29,6 +31,10 @@ export class FixtureRankFlowRepository implements RankFlowRepository {
 
   async getWorkspace(id: string) {
     return getWorkspaceById(id);
+  }
+
+  async getSession() {
+    return currentSession;
   }
 
   async getHodSummary() {
