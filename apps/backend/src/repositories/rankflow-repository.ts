@@ -2,6 +2,8 @@ import type {
   AiSuggestion,
   AuditCategory,
   HodSummary,
+  KeywordRanking,
+  ReportSnapshot,
   ScanSnapshot,
   WorkbookTask,
   Workspace
@@ -16,6 +18,8 @@ export interface RankFlowRepository {
   listAuditCategories(workspaceId: string): Promise<AuditCategory[]>;
   listSuggestions(workspaceId: string): Promise<AiSuggestion[]>;
   listTasks(workspaceId: string): Promise<WorkbookTask[]>;
+  listKeywords(workspaceId: string): Promise<KeywordRanking[]>;
+  listReports(workspaceId: string): Promise<ReportSnapshot[]>;
 }
 
 export class FixtureRankFlowRepository implements RankFlowRepository {
@@ -45,6 +49,14 @@ export class FixtureRankFlowRepository implements RankFlowRepository {
 
   async listTasks(workspaceId: string) {
     return getWorkspaceById(workspaceId)?.tasks ?? [];
+  }
+
+  async listKeywords(workspaceId: string) {
+    return getWorkspaceById(workspaceId)?.keywords ?? [];
+  }
+
+  async listReports(workspaceId: string) {
+    return getWorkspaceById(workspaceId)?.reports ?? [];
   }
 }
 

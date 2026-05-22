@@ -1,4 +1,13 @@
-import type { AiSuggestion, AuditCategory, HodSummary, ScanSnapshot, WorkbookTask, Workspace } from "@rankflow/shared";
+import type {
+  AiSuggestion,
+  AuditCategory,
+  HodSummary,
+  KeywordRanking,
+  ReportSnapshot,
+  ScanSnapshot,
+  WorkbookTask,
+  Workspace
+} from "@rankflow/shared";
 
 const apiBaseUrl = process.env.RANKFLOW_API_URL ?? "http://127.0.0.1:4000";
 
@@ -41,4 +50,12 @@ export async function getWorkspaceSuggestions(workspaceId: string) {
 
 export async function getWorkspaceTasks(workspaceId: string) {
   return fetchJson<WorkbookTask[]>(`/api/workspaces/${workspaceId}/tasks`);
+}
+
+export async function getWorkspaceKeywords(workspaceId: string) {
+  return fetchJson<KeywordRanking[]>(`/api/workspaces/${workspaceId}/keywords`);
+}
+
+export async function getWorkspaceReports(workspaceId: string) {
+  return fetchJson<ReportSnapshot[]>(`/api/workspaces/${workspaceId}/reports`);
 }

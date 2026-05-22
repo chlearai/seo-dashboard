@@ -5,11 +5,11 @@ const modules = [
   { label: "Scan History", href: "/workspaces/aurora-education/scans" },
   { label: "On-Page Audit", href: "/workspaces/aurora-education/audit" },
   { label: "AI Suggestions", href: "/workspaces/aurora-education/suggestions" },
-  { label: "Keywords", href: "#" },
+  { label: "Keywords", href: "/workspaces/aurora-education/keywords" },
   { label: "Workbook", href: "/workspaces/aurora-education/workbook" },
   { label: "Off-Page", href: "#" },
   { label: "Competitors", href: "#" },
-  { label: "Reports", href: "#" }
+  { label: "Reports", href: "/workspaces/aurora-education/reports" }
 ];
 
 export function AppShell({ children }: { children: React.ReactNode }) {

@@ -1,5 +1,9 @@
 import type {
   AiSuggestion,
+  KeywordRanking,
+  KeywordSummary,
+  ReportReadinessSummary,
+  ReportSnapshot,
   ScanComparison,
   ScanSnapshot,
   ScoreHealth,
@@ -62,4 +66,30 @@ export function groupTasksByStatus(tasks: WorkbookTask[]): WorkbookStatusColumn[
     status,
     tasks: tasks.filter((task) => task.status === status)
   }));
+}
+
+export function getKeywordSummary(keywords: KeywordRanking[]): KeywordSummary {
+  const totalPosition = keywords.reduce((sum, keyword) => sum + keyword.currentPosition, 0);
+
+  return {
+    tracked: keywords.length,
+    top3: keywords.filter((keyword) => keyword.currentPosition <= 3).length,
+    top10: keywords.filter((keyword) => keyword.currentPosition <= 10).length,
+    top20: keywords.filter((keyword) => keyword.currentPosition <= 20).length,
+    improved: keywords.filter((keyword) => keyword.positionDelta > 0).length,
+    declined: keywords.filter((keyword) => keyword.positionDelta < 0).length,
+    averagePosition: keywords.length ? Math.round(totalPosition / keywords.length) : 0
+  };
+}
+
+export function getReportReadinessSummary(reports: ReportSnapshot[]): ReportReadinessSummary {
+  const totalReadiness = reports.reduce((sum, report) => sum + report.readinessScore, 0);
+
+  return {
+    total: reports.length,
+    published: reports.filter((report) => report.status === "Published").length,
+    needsReview: reports.filter((report) => report.status === "Review").length,
+    drafts: reports.filter((report) => report.status === "Draft").length,
+    averageReadiness: reports.length ? Math.round(totalReadiness / reports.length) : 0
+  };
 }

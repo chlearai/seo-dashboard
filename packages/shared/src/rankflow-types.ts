@@ -93,6 +93,52 @@ export interface WorkbookStatusColumn {
   tasks: WorkbookTask[];
 }
 
+export interface KeywordRanking {
+  id: string;
+  keyword: string;
+  intent: "Informational" | "Commercial" | "Transactional" | "Navigational" | "Local";
+  mappedPage: string;
+  currentPosition: number;
+  previousPosition: number;
+  positionDelta: number;
+  volume: number;
+  difficulty: number;
+  serpFeatures: string[];
+  updatedAt: string;
+}
+
+export interface KeywordSummary {
+  tracked: number;
+  top3: number;
+  top10: number;
+  top20: number;
+  improved: number;
+  declined: number;
+  averagePosition: number;
+}
+
+export interface ReportSnapshot {
+  id: string;
+  title: string;
+  period: string;
+  status: "Draft" | "Review" | "Published" | "Scheduled";
+  dueDate: string;
+  readinessScore: number;
+  sectionsReady: number;
+  totalSections: number;
+  lastUpdated: string;
+  clientVisible: boolean;
+  owner: string;
+}
+
+export interface ReportReadinessSummary {
+  total: number;
+  published: number;
+  needsReview: number;
+  drafts: number;
+  averageReadiness: number;
+}
+
 export interface Workspace {
   id: string;
   clientName: string;
@@ -110,6 +156,8 @@ export interface Workspace {
   auditCategories: AuditCategory[];
   suggestions: AiSuggestion[];
   tasks: WorkbookTask[];
+  keywords: KeywordRanking[];
+  reports: ReportSnapshot[];
 }
 
 export interface HodSummary {

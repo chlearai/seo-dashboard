@@ -58,7 +58,7 @@ const server = createServer(async (request, response) => {
   }
 
   const workspaceCollectionMatch = url.pathname.match(
-    /^\/api\/workspaces\/([^/]+)\/(scans|audit-categories|suggestions|tasks)$/
+    /^\/api\/workspaces\/([^/]+)\/(scans|audit-categories|suggestions|tasks|keywords|reports)$/
   );
   if (workspaceCollectionMatch) {
     const [, workspaceId, collection] = workspaceCollectionMatch;
@@ -84,7 +84,17 @@ const server = createServer(async (request, response) => {
       return;
     }
 
-    jsonResponse(response, 200, await rankFlowRepository.listTasks(workspaceId));
+    if (collection === "tasks") {
+      jsonResponse(response, 200, await rankFlowRepository.listTasks(workspaceId));
+      return;
+    }
+
+    if (collection === "keywords") {
+      jsonResponse(response, 200, await rankFlowRepository.listKeywords(workspaceId));
+      return;
+    }
+
+    jsonResponse(response, 200, await rankFlowRepository.listReports(workspaceId));
     return;
   }
 

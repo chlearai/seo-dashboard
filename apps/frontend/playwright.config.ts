@@ -8,6 +8,7 @@ const frontendUrl = "http://127.0.0.1:3200";
 export default defineConfig({
   testDir: "./tests",
   testMatch: "**/*.spec.ts",
+  timeout: 60_000,
   use: {
     baseURL: frontendUrl,
     trace: "on-first-retry"

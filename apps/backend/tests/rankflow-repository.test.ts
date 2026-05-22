@@ -23,6 +23,8 @@ describe("FixtureRankFlowRepository", () => {
     await expect(repository.listAuditCategories("aurora-education")).resolves.toHaveLength(3);
     await expect(repository.listSuggestions("aurora-education")).resolves.toHaveLength(3);
     await expect(repository.listTasks("aurora-education")).resolves.toHaveLength(4);
+    await expect(repository.listKeywords("aurora-education")).resolves.toHaveLength(4);
+    await expect(repository.listReports("aurora-education")).resolves.toHaveLength(2);
   });
 
   it("returns empty collections for unknown workspaces", async () => {
@@ -30,5 +32,7 @@ describe("FixtureRankFlowRepository", () => {
     await expect(repository.listScans("missing")).resolves.toEqual([]);
     await expect(repository.listSuggestions("missing")).resolves.toEqual([]);
     await expect(repository.listTasks("missing")).resolves.toEqual([]);
+    await expect(repository.listKeywords("missing")).resolves.toEqual([]);
+    await expect(repository.listReports("missing")).resolves.toEqual([]);
   });
 });

@@ -92,6 +92,16 @@ export const workspaces: Workspace[] = [
       { id: "task-aurora-2", title: "Publish course FAQ schema", owner: "Anika Rao", priority: "medium", status: "Review", dueDate: "2026-05-22", evidenceRequired: true },
       { id: "task-aurora-3", title: "Refresh executive MBA meta descriptions", owner: "Rohan Mehta", priority: "low", status: "Done", dueDate: "2026-05-18", evidenceRequired: true },
       { id: "task-aurora-4", title: "Map admissions keywords to priority pages", owner: "Maya Iyer", priority: "medium", status: "Backlog", dueDate: "2026-05-25", evidenceRequired: false }
+    ],
+    keywords: [
+      { id: "kw-aurora-1", keyword: "mba admissions", intent: "Commercial", mappedPage: "/mba/admissions", currentPosition: 3, previousPosition: 6, positionDelta: 3, volume: 5400, difficulty: 61, serpFeatures: ["PAA", "Sitelinks"], updatedAt: "2026-05-20" },
+      { id: "kw-aurora-2", keyword: "executive mba india", intent: "Commercial", mappedPage: "/executive-mba", currentPosition: 9, previousPosition: 12, positionDelta: 3, volume: 2900, difficulty: 55, serpFeatures: ["PAA"], updatedAt: "2026-05-20" },
+      { id: "kw-aurora-3", keyword: "data science course eligibility", intent: "Informational", mappedPage: "/courses/data-science", currentPosition: 14, previousPosition: 10, positionDelta: -4, volume: 1900, difficulty: 48, serpFeatures: ["Featured Snippet", "PAA"], updatedAt: "2026-05-20" },
+      { id: "kw-aurora-4", keyword: "business school scholarships", intent: "Informational", mappedPage: "/scholarships", currentPosition: 28, previousPosition: 34, positionDelta: 6, volume: 1200, difficulty: 42, serpFeatures: ["Images"], updatedAt: "2026-05-20" }
+    ],
+    reports: [
+      { id: "rep-aurora-may", title: "May SEO Progress Report", period: "May 2026", status: "Review", dueDate: "2026-05-24", readinessScore: 86, sectionsReady: 12, totalSections: 14, lastUpdated: "2026-05-20", clientVisible: false, owner: "Maya Iyer" },
+      { id: "rep-aurora-apr", title: "April SEO Progress Report", period: "April 2026", status: "Published", dueDate: "2026-04-24", readinessScore: 100, sectionsReady: 14, totalSections: 14, lastUpdated: "2026-04-24", clientVisible: true, owner: "Maya Iyer" }
     ]
   },
   {
@@ -154,6 +164,13 @@ export const workspaces: Workspace[] = [
     tasks: [
       { id: "task-nimbus-1", title: "Fix clinic page canonical conflicts", owner: "Priya Menon", priority: "critical", status: "Backlog", dueDate: "2026-05-21", evidenceRequired: true },
       { id: "task-nimbus-2", title: "Compress location hero media", owner: "Dev Arora", priority: "critical", status: "In Progress", dueDate: "2026-05-21", evidenceRequired: true }
+    ],
+    keywords: [
+      { id: "kw-nimbus-1", keyword: "clinic near me delhi", intent: "Local", mappedPage: "/clinics/delhi", currentPosition: 11, previousPosition: 7, positionDelta: -4, volume: 8100, difficulty: 64, serpFeatures: ["Local Pack", "Map"], updatedAt: "2026-05-20" },
+      { id: "kw-nimbus-2", keyword: "best family clinic", intent: "Local", mappedPage: "/family-clinic", currentPosition: 18, previousPosition: 23, positionDelta: 5, volume: 3600, difficulty: 50, serpFeatures: ["PAA", "Local Pack"], updatedAt: "2026-05-20" }
+    ],
+    reports: [
+      { id: "rep-nimbus-may", title: "May Risk Recovery Report", period: "May 2026", status: "Draft", dueDate: "2026-05-22", readinessScore: 58, sectionsReady: 8, totalSections: 14, lastUpdated: "2026-05-20", clientVisible: false, owner: "Kabir Sen" }
     ]
   },
   {
@@ -203,6 +220,13 @@ export const workspaces: Workspace[] = [
     ],
     tasks: [
       { id: "task-atlas-1", title: "Audit top 50 PDP canonical tags", owner: "Sara Khan", priority: "high", status: "In Progress", dueDate: "2026-05-23", evidenceRequired: true }
+    ],
+    keywords: [
+      { id: "kw-atlas-1", keyword: "linen shirts online", intent: "Transactional", mappedPage: "/category/linen-shirts", currentPosition: 5, previousPosition: 8, positionDelta: 3, volume: 12800, difficulty: 72, serpFeatures: ["Shopping", "Images"], updatedAt: "2026-05-20" },
+      { id: "kw-atlas-2", keyword: "sage linen shirt", intent: "Transactional", mappedPage: "/products/linen-shirt", currentPosition: 16, previousPosition: 14, positionDelta: -2, volume: 2100, difficulty: 39, serpFeatures: ["Shopping"], updatedAt: "2026-05-20" }
+    ],
+    reports: [
+      { id: "rep-atlas-may", title: "May eCommerce SEO Report", period: "May 2026", status: "Scheduled", dueDate: "2026-05-27", readinessScore: 74, sectionsReady: 10, totalSections: 14, lastUpdated: "2026-05-20", clientVisible: false, owner: "Nisha Kapoor" }
     ]
   },
   {
@@ -252,6 +276,13 @@ export const workspaces: Workspace[] = [
     ],
     tasks: [
       { id: "task-vertex-1", title: "Rewrite comparison page proof section", owner: "Ira Bose", priority: "medium", status: "Backlog", dueDate: "2026-05-24", evidenceRequired: false }
+    ],
+    keywords: [
+      { id: "kw-vertex-1", keyword: "asana alternative", intent: "Commercial", mappedPage: "/compare/asana-alternative", currentPosition: 12, previousPosition: 16, positionDelta: 4, volume: 6600, difficulty: 69, serpFeatures: ["PAA"], updatedAt: "2026-05-20" },
+      { id: "kw-vertex-2", keyword: "project operations software", intent: "Commercial", mappedPage: "/solutions/project-operations", currentPosition: 24, previousPosition: 22, positionDelta: -2, volume: 1800, difficulty: 57, serpFeatures: ["Videos"], updatedAt: "2026-05-20" }
+    ],
+    reports: [
+      { id: "rep-vertex-may", title: "May SaaS Visibility Report", period: "May 2026", status: "Draft", dueDate: "2026-05-25", readinessScore: 64, sectionsReady: 9, totalSections: 14, lastUpdated: "2026-05-20", clientVisible: false, owner: "Aarav Shah" }
     ]
   }
 ];

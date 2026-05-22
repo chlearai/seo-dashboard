@@ -69,6 +69,14 @@ export function WorkspaceDetail({ workspace }: { workspace: Workspace }) {
           <strong>SEO Workbook</strong>
           <span>Kanban execution queue with owners and evidence</span>
         </Link>
+        <Link className="module-card" href={`/workspaces/${workspace.id}/keywords`}>
+          <strong>Keywords</strong>
+          <span>Rank movement, mapped pages, intent, and SERP features</span>
+        </Link>
+        <Link className="module-card" href={`/workspaces/${workspace.id}/reports`}>
+          <strong>Reports</strong>
+          <span>Readiness, publication status, and client visibility</span>
+        </Link>
       </section>
 
       <section className="panel">

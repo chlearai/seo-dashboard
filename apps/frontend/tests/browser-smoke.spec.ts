@@ -37,3 +37,15 @@ test("workspace module routes render scan, audit, suggestion, and workbook surfa
   await expect(page.getByRole("heading", { name: /Aurora Education Group execution board/i })).toBeVisible();
   await expect(page.getByRole("heading", { name: "In Progress" })).toBeVisible();
 });
+
+test("growth module routes render keyword tracking and report readiness", async ({ page }) => {
+  await page.goto("/workspaces/aurora-education/keywords");
+  await expect(page.getByRole("heading", { name: /Aurora Education Group keyword visibility/i })).toBeVisible();
+  await expect(page.getByText("Tracked Keywords")).toBeVisible();
+  await expect(page.getByText("mba admissions", { exact: true })).toBeVisible();
+
+  await page.goto("/workspaces/aurora-education/reports");
+  await expect(page.getByRole("heading", { name: /Aurora Education Group report readiness/i })).toBeVisible();
+  await expect(page.getByText("Avg Readiness")).toBeVisible();
+  await expect(page.getByText("May SEO Progress Report")).toBeVisible();
+});
