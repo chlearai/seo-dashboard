@@ -55,6 +55,16 @@ npm run dev:frontend
 
 The frontend reads RankFlow data through backend APIs. Shared TypeScript contracts live in `packages/shared`.
 
+## Live Connector Mode
+
+The backend can merge live Google Search Console data into the audit intelligence stack when these env vars are set:
+
+- `RANKFLOW_GSC_LIVE_MODE=1`
+- `RANKFLOW_GSC_SITE_URL=sc-domain:example.com`
+- `RANKFLOW_GSC_ACCESS_TOKEN=...`
+
+If live mode is disabled or the connector fails, the backend falls back to the fixture-backed audit stack.
+
 ## Database
 
 The initial Supabase/Postgres schema lives in:

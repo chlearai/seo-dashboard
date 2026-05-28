@@ -22,4 +22,50 @@ describe("rankflow audit intelligence repository", () => {
   it("returns undefined for missing workspace audit intelligence", async () => {
     await expect(repository.getAuditIntelligence("missing")).resolves.toBeUndefined();
   });
+
+  it("merges live gsc data when the connector is available", async () => {
+    const liveRepository = new FixtureRankFlowRepository({
+      googleSearchConsoleConnector: {
+        async getSnapshot() {
+          return {
+            sourceStatus: {
+              source: "gsc",
+              label: "Google Search Console",
+              status: "Connected",
+              coverageScore: 100,
+              lastSyncedAt: "2026-05-28T12:00:00.000Z",
+              recordsAvailable: 1,
+              primaryUse: "Live Search Analytics sync"
+            },
+            searchPerformance: [
+              {
+                id: "gsc-live-impressions-aurora-education",
+                source: "gsc",
+                label: "Search impressions",
+                value: 150000,
+                delta: 16000,
+                category: "impressions"
+              }
+            ]
+          };
+        }
+      }
+    });
+
+    await expect(liveRepository.getAuditIntelligence("aurora-education")).resolves.toMatchObject({
+      sourceStatuses: expect.arrayContaining([
+        expect.objectContaining({
+          source: "gsc",
+          primaryUse: "Live Search Analytics sync"
+        })
+      ]),
+      searchPerformance: expect.arrayContaining([
+        expect.objectContaining({
+          source: "gsc",
+          label: "Search impressions",
+          value: 150000
+        })
+      ])
+    });
+  });
 });

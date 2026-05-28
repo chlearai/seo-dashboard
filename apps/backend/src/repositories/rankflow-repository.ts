@@ -28,6 +28,12 @@ import {
   organicMetricSnapshotsByWorkspace,
   workspaces
 } from "../rankflow-data";
+import {
+  createGoogleSearchConsoleConnector,
+  createGoogleSearchConsoleLiveConfigFromEnv,
+  type GoogleSearchConsoleConnector,
+  type GoogleSearchConsoleSnapshot
+} from "../connectors/google-search-console";
 
 export interface RankFlowRepository {
   listWorkspaces(): Promise<Workspace[]>;
@@ -49,7 +55,38 @@ export interface RankFlowRepository {
   getAuditIntelligence(workspaceId: string): Promise<AuditIntelligenceStack | undefined>;
 }
 
+export interface FixtureRankFlowRepositoryOptions {
+  googleSearchConsoleConnector?: GoogleSearchConsoleConnector;
+}
+
+function mergeGoogleSearchConsoleSnapshot(
+  stack: AuditIntelligenceStack,
+  snapshot: GoogleSearchConsoleSnapshot | null
+): AuditIntelligenceStack {
+  if (!snapshot) {
+    return stack;
+  }
+
+  return {
+    ...stack,
+    sourceStatuses: stack.sourceStatuses.map((source) =>
+      source.source === "gsc" ? snapshot.sourceStatus : source
+    ),
+    searchPerformance: [
+      ...stack.searchPerformance.filter((signal) => signal.source !== "gsc"),
+      ...snapshot.searchPerformance
+    ].sort((a, b) => a.label.localeCompare(b.label))
+  };
+}
+
 export class FixtureRankFlowRepository implements RankFlowRepository {
+  private readonly googleSearchConsoleConnector: GoogleSearchConsoleConnector;
+
+  constructor(options: FixtureRankFlowRepositoryOptions = {}) {
+    this.googleSearchConsoleConnector =
+      options.googleSearchConsoleConnector ?? createGoogleSearchConsoleConnector(createGoogleSearchConsoleLiveConfigFromEnv());
+  }
+
   async listWorkspaces() {
     return workspaces;
   }
@@ -115,7 +152,17 @@ export class FixtureRankFlowRepository implements RankFlowRepository {
   }
 
   async getAuditIntelligence(workspaceId: string) {
-    return auditIntelligenceByWorkspace[workspaceId];
+    const stack = auditIntelligenceByWorkspace[workspaceId];
+    if (!stack) {
+      return undefined;
+    }
+
+    try {
+      const liveSnapshot = await this.googleSearchConsoleConnector.getSnapshot(workspaceId);
+      return mergeGoogleSearchConsoleSnapshot(stack, liveSnapshot);
+    } catch {
+      return stack;
+    }
   }
 }
 
