@@ -270,40 +270,47 @@ export class FixtureRankFlowRepository implements RankFlowRepository {
   }
 
   async getAuditIntelligence(workspaceId: string) {
+    const workspace = getWorkspaceById(workspaceId);
     const stack = auditIntelligenceByWorkspace[workspaceId];
     if (!stack) {
       return undefined;
     }
 
-    const [gscSnapshot, ga4Snapshot, dataForSeoSnapshot, ahrefsSnapshot, semrushSnapshot, claudeBrainSnapshot] =
+    const domain = workspace?.primaryDomain;
+    const [gscSnapshot, ga4Snapshot, dataForSeoSnapshot, ahrefsSnapshot, semrushSnapshot] =
       await Promise.allSettled([
         this.googleSearchConsoleConnector.getSnapshot(workspaceId),
         this.googleAnalytics4Connector.getSnapshot(workspaceId),
-        this.dataForSeoConnector.getSnapshot(workspaceId),
-        this.ahrefsConnector.getSnapshot(workspaceId),
-        this.semrushConnector.getSnapshot(workspaceId),
-        this.claudeBrainConnector.getSnapshot(workspaceId)
+        domain ? this.dataForSeoConnector.getSnapshot(workspaceId, { domain }) : Promise.resolve(null),
+        domain ? this.ahrefsConnector.getSnapshot(workspaceId, { domain }) : Promise.resolve(null),
+        domain ? this.semrushConnector.getSnapshot(workspaceId, { domain }) : Promise.resolve(null)
       ]);
 
-    return mergeClaudeBrainSnapshot(
+    const mergedEvidence = mergeAuthoritySnapshot(
       mergeAuthoritySnapshot(
         mergeAuthoritySnapshot(
-          mergeAuthoritySnapshot(
-            mergeGoogleAnalytics4Snapshot(
-              mergeGoogleSearchConsoleSnapshot(
-                stack,
-                gscSnapshot.status === "fulfilled" ? gscSnapshot.value : null
-              ),
-              ga4Snapshot.status === "fulfilled" ? ga4Snapshot.value : null
-            ),
-            dataForSeoSnapshot.status === "fulfilled" ? dataForSeoSnapshot.value : null
+          mergeGoogleAnalytics4Snapshot(
+            mergeGoogleSearchConsoleSnapshot(stack, gscSnapshot.status === "fulfilled" ? gscSnapshot.value : null),
+            ga4Snapshot.status === "fulfilled" ? ga4Snapshot.value : null
           ),
-          ahrefsSnapshot.status === "fulfilled" ? ahrefsSnapshot.value : null
+          dataForSeoSnapshot.status === "fulfilled" ? dataForSeoSnapshot.value : null
         ),
-        semrushSnapshot.status === "fulfilled" ? semrushSnapshot.value : null
+        ahrefsSnapshot.status === "fulfilled" ? ahrefsSnapshot.value : null
       ),
-      claudeBrainSnapshot.status === "fulfilled" ? claudeBrainSnapshot.value : null
+      semrushSnapshot.status === "fulfilled" ? semrushSnapshot.value : null
     );
+
+    const claudeBrainSnapshot = domain && workspace
+      ? await this.claudeBrainConnector.getSnapshot(workspaceId, {
+          workspace: {
+            clientName: workspace.clientName,
+            primaryDomain: workspace.primaryDomain
+          },
+          stack: mergedEvidence
+        }).catch(() => null)
+      : null;
+
+    return mergeClaudeBrainSnapshot(mergedEvidence, claudeBrainSnapshot);
   }
 }
 

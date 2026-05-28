@@ -131,7 +131,9 @@ describe("rankflow audit intelligence repository", () => {
   it("merges live authority data and Claude brain output when the connectors are available", async () => {
     const liveRepository = new FixtureRankFlowRepository({
       dataForSeoConnector: {
-        async getSnapshot() {
+        async getSnapshot(workspaceId, context) {
+          expect(workspaceId).toBe("aurora-education");
+          expect(context.domain).toBe("aurora.edu");
           return {
             sourceStatus: {
               source: "dataforseo",
@@ -156,7 +158,9 @@ describe("rankflow audit intelligence repository", () => {
         }
       },
       ahrefsConnector: {
-        async getSnapshot() {
+        async getSnapshot(workspaceId, context) {
+          expect(workspaceId).toBe("aurora-education");
+          expect(context.domain).toBe("aurora.edu");
           return {
             sourceStatus: {
               source: "ahrefs",
@@ -181,7 +185,9 @@ describe("rankflow audit intelligence repository", () => {
         }
       },
       semrushConnector: {
-        async getSnapshot() {
+        async getSnapshot(workspaceId, context) {
+          expect(workspaceId).toBe("aurora-education");
+          expect(context.domain).toBe("aurora.edu");
           return {
             sourceStatus: {
               source: "semrush",
@@ -206,7 +212,16 @@ describe("rankflow audit intelligence repository", () => {
         }
       },
       claudeBrainConnector: {
-        async getSnapshot() {
+        async getSnapshot(workspaceId, context) {
+          expect(workspaceId).toBe("aurora-education");
+          expect(context.workspace.primaryDomain).toBe("aurora.edu");
+          expect(context.stack.authoritySignals).toEqual(
+            expect.arrayContaining([
+              expect.objectContaining({ source: "dataforseo" }),
+              expect.objectContaining({ source: "ahrefs" }),
+              expect.objectContaining({ source: "semrush" })
+            ])
+          );
           return {
             sourceStatus: {
               source: "claude-brain",

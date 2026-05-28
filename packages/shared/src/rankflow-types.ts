@@ -584,7 +584,7 @@ export interface AuthoritySignal {
   label: string;
   value: number;
   delta: number;
-  category: "backlinks" | "referring-domains" | "keyword-rank" | "competitor-gap" | "authority-score";
+  category: "backlinks" | "referring-domains" | "keyword-rank" | "competitor-gap" | "authority-score" | "visibility" | "traffic";
 }
 
 export interface ClaudeBrainAuditRun {
@@ -649,6 +649,7 @@ export interface RankFlowSession {
 export interface Workspace {
   id: string;
   clientName: string;
+  primaryDomain: string;
   industry: string;
   manager: string;
   teamSize: number;

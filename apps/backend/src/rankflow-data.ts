@@ -813,6 +813,7 @@ export const workspaces: Workspace[] = [
   {
     id: "aurora-education",
     clientName: "Aurora Education Group",
+    primaryDomain: "aurora.edu",
     industry: "Education",
     manager: "Maya Iyer",
     teamSize: 5,
@@ -910,6 +911,7 @@ export const workspaces: Workspace[] = [
   {
     id: "nimbus-health",
     clientName: "Nimbus Health Clinics",
+    primaryDomain: "nimbushealth.com",
     industry: "Healthcare",
     manager: "Kabir Sen",
     teamSize: 4,
@@ -980,6 +982,7 @@ export const workspaces: Workspace[] = [
   {
     id: "atlas-commerce",
     clientName: "Atlas Commerce",
+    primaryDomain: "atlascommerce.com",
     industry: "eCommerce",
     manager: "Nisha Kapoor",
     teamSize: 6,
@@ -1037,6 +1040,7 @@ export const workspaces: Workspace[] = [
   {
     id: "vertex-saas",
     clientName: "VertexOps SaaS",
+    primaryDomain: "vertexops.com",
     industry: "SaaS",
     manager: "Aarav Shah",
     teamSize: 3,
