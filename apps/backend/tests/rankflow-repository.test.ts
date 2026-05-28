@@ -59,4 +59,22 @@ describe("FixtureRankFlowRepository", () => {
     await expect(repository.listReports("missing")).resolves.toEqual([]);
     await expect(repository.getLocalVisibility("missing")).resolves.toBeUndefined();
   });
+
+  it("fails closed in production instead of serving seeded data", async () => {
+    const previousNodeEnv = process.env.NODE_ENV;
+    process.env.NODE_ENV = "production";
+
+    try {
+      const productionRepository = new FixtureRankFlowRepository();
+
+      await expect(productionRepository.listWorkspaces()).rejects.toThrow(
+        "RankFlow seed data is disabled in production"
+      );
+      await expect(productionRepository.getAuditIntelligence("aurora-education")).rejects.toThrow(
+        "RankFlow seed data is disabled in production"
+      );
+    } finally {
+      process.env.NODE_ENV = previousNodeEnv;
+    }
+  });
 });

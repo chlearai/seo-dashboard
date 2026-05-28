@@ -99,6 +99,12 @@ export interface FixtureRankFlowRepositoryOptions {
   claudeBrainConnector?: ClaudeSeoBrainConnector;
 }
 
+function assertSeedDataAvailable() {
+  if (process.env.NODE_ENV === "production") {
+    throw new Error("RankFlow seed data is disabled in production");
+  }
+}
+
 function mergeGoogleSearchConsoleSnapshot(
   stack: AuditIntelligenceStack,
   snapshot: GoogleSearchConsoleSnapshot | null
@@ -198,78 +204,97 @@ export class FixtureRankFlowRepository implements RankFlowRepository {
   }
 
   async listWorkspaces() {
+    assertSeedDataAvailable();
     return workspaces;
   }
 
   async getWorkspace(id: string) {
+    assertSeedDataAvailable();
     return getWorkspaceById(id);
   }
 
   async getSession() {
+    assertSeedDataAvailable();
     return currentSession;
   }
 
   async getHodSummary() {
+    assertSeedDataAvailable();
     return getHodSummary(workspaces);
   }
 
   async listScans(workspaceId: string) {
+    assertSeedDataAvailable();
     return getWorkspaceById(workspaceId)?.scans ?? [];
   }
 
   async listAuditCategories(workspaceId: string) {
+    assertSeedDataAvailable();
     return getWorkspaceById(workspaceId)?.auditCategories ?? [];
   }
 
   async listSuggestions(workspaceId: string) {
+    assertSeedDataAvailable();
     return getWorkspaceById(workspaceId)?.suggestions ?? [];
   }
 
   async listTasks(workspaceId: string) {
+    assertSeedDataAvailable();
     return getWorkspaceById(workspaceId)?.tasks ?? [];
   }
 
   async listKeywords(workspaceId: string) {
+    assertSeedDataAvailable();
     return getWorkspaceById(workspaceId)?.keywords ?? [];
   }
 
   async listReports(workspaceId: string) {
+    assertSeedDataAvailable();
     return getWorkspaceById(workspaceId)?.reports ?? [];
   }
 
   async getLocalVisibility(workspaceId: string) {
+    assertSeedDataAvailable();
     return getWorkspaceById(workspaceId)?.localVisibility;
   }
 
   async listGrowthCycles(workspaceId: string) {
+    assertSeedDataAvailable();
     return growthCyclesByWorkspace[workspaceId] ?? [];
   }
 
   async listOrganicMetricSnapshots(workspaceId: string) {
+    assertSeedDataAvailable();
     return organicMetricSnapshotsByWorkspace[workspaceId] ?? [];
   }
 
   async listActionItems(workspaceId: string) {
+    assertSeedDataAvailable();
     return actionItemsByWorkspace[workspaceId] ?? [];
   }
 
   async listExpertEfficiency(workspaceId: string) {
+    assertSeedDataAvailable();
     return expertEfficiencyByWorkspace[workspaceId] ?? [];
   }
 
   async getOwnCrawler(workspaceId: string) {
+    assertSeedDataAvailable();
     return ownCrawlerByWorkspace[workspaceId];
   }
 
   async getScreamingFrog(workspaceId: string) {
+    assertSeedDataAvailable();
     return screamingFrogByWorkspace[workspaceId];
   }
 
   async getAiBrain(workspaceId: string) {
+    assertSeedDataAvailable();
     return aiBrainByWorkspace[workspaceId];
   }
 
   async getAuditIntelligence(workspaceId: string) {
+    assertSeedDataAvailable();
     const workspace = getWorkspaceById(workspaceId);
     const stack = auditIntelligenceByWorkspace[workspaceId];
     if (!stack) {

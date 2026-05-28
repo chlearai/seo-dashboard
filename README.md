@@ -103,7 +103,7 @@ supabase/migrations/202605280003_rankflow_ai_brain.sql
 supabase/migrations/202605280004_rankflow_audit_intelligence_stack.sql
 ```
 
-The backend currently uses a fixture repository that implements the same repository interface planned for Supabase-backed data access.
+The backend currently uses a fixture repository in development. In production, the seed-backed repository now fails closed instead of serving fixture data, so a live data store must be wired before production use.
 
 ## Verification
 
