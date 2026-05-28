@@ -183,7 +183,7 @@ export function WorkspaceDetail({ workspace }: { workspace: Workspace }) {
         </div>
       </section>
 
-      <Link className="button" href="/">
+      <Link className="button" href="/dashboard">
         Back to HOD Command Centre
       </Link>
     </main>

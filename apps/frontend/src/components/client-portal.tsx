@@ -68,7 +68,7 @@ export function ClientPortal({ workspace }: { workspace: Workspace }) {
         </div>
       </section>
 
-      <Link className="button" href="/">
+      <Link className="button" href="/dashboard">
         Open Command Centre
       </Link>
     </main>

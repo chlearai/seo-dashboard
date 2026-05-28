@@ -1,10 +1,11 @@
-import { HodCommandCentre } from "@/components/hod-command-centre";
-import { getHodCommandCentreData } from "@/lib/rankflow-api";
+import type { Metadata } from "next";
+import { PublicHomepage } from "@/components/public-homepage";
 
-export const dynamic = "force-dynamic";
+export const metadata: Metadata = {
+  title: "RankFlow | Organic growth OS",
+  description: "Audit, analyse, act, report, and re-audit organic growth in one system."
+};
 
-export default async function Home() {
-  const { summary, workspaces } = await getHodCommandCentreData();
-
-  return <HodCommandCentre summary={summary} workspaces={workspaces} />;
+export default function Home() {
+  return <PublicHomepage />;
 }

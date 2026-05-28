@@ -22,7 +22,7 @@ import type { LucideIcon } from "lucide-react";
 import { canPerformAction, type RankFlowModule, type RankFlowSession } from "@rankflow/shared";
 
 const modules = [
-  { id: "dashboard", label: "Dashboard", href: "/", Icon: LayoutDashboard },
+  { id: "dashboard", label: "Dashboard", href: "/dashboard", Icon: LayoutDashboard },
   { id: "own-crawler", label: "Own Crawler", href: "/workspaces/aurora-education/own-crawler", Icon: Search },
   { id: "screaming-frog", label: "Screaming Frog", href: "/workspaces/aurora-education/screaming-frog", Icon: ScanSearch },
   { id: "ai-brain", label: "AI Brain", href: "/workspaces/aurora-education/ai-brain", Icon: BrainCircuit },
@@ -55,7 +55,7 @@ export function AppShell({
   return (
     <div className="app-shell">
       <aside className="sidebar">
-        <Link className="brand" href="/">
+        <Link className="brand" href="/dashboard">
           <span className="brand-mark">R</span>
           <span>
             <strong>RankFlow</strong>

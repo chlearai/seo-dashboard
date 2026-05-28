@@ -1,7 +1,14 @@
 import { expect, test } from "@playwright/test";
 
-test("HOD command centre renders the SaaS operating view", async ({ page }) => {
+test("public homepage renders the marketing-first entry", async ({ page }) => {
   await page.goto("/");
+  await expect(page.getByRole("heading", { name: /Operate organic growth like a system/i })).toBeVisible();
+  await expect(page.getByRole("link", { name: /Open dashboard/i })).toBeVisible();
+  await expect(page.getByText("Audit, analyse, act, report, re-audit.")).toBeVisible();
+});
+
+test("dashboard renders the authenticated command centre", async ({ page }) => {
+  await page.goto("/dashboard");
   await expect(page.getByRole("heading", { name: /all clients, scans/i })).toBeVisible();
   await expect(page.getByText("hod access")).toBeVisible();
   await expect(page.getByRole("link", { name: /Reports/ })).toBeVisible();

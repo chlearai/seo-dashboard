@@ -1,21 +1,18 @@
 import type { Metadata } from "next";
-import "./globals.css";
+import { AppShell } from "@/components/app-shell";
+import { getSession } from "@/lib/rankflow-api";
 
 export const metadata: Metadata = {
   title: "RankFlow | SEO Intelligence Platform",
   description: "The Google Ads Manager for SEO teams."
 };
 
-export default async function RootLayout({
+export default async function AppLayout({
   children
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  return (
-    <html lang="en">
-      <body>
-        {children}
-      </body>
-    </html>
-  );
+  const session = await getSession();
+
+  return <AppShell session={session}>{children}</AppShell>;
 }
