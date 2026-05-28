@@ -74,6 +74,15 @@ test("growth cycle route renders audit analyse act report loop", async ({ page }
   await expect(page.getByText("SEO Expert Efficiency")).toBeVisible();
 });
 
+test("own crawler route renders rule engine evidence", async ({ page }) => {
+  await page.goto("/workspaces/aurora-education/own-crawler");
+  await expect(page.getByRole("heading", { name: /Aurora Education Group crawler rules/i })).toBeVisible();
+  await expect(page.getByText("Pages Crawled")).toBeVisible();
+  await expect(page.getByText("Missing titles", { exact: true })).toBeVisible();
+  await expect(page.getByText("Canonical conflicts", { exact: true })).toBeVisible();
+  await expect(page.getByText("URL-level issues")).toBeVisible();
+});
+
 test("AI brain route renders approval gated system intelligence", async ({ page }) => {
   await page.goto("/workspaces/aurora-education/ai-brain");
   await expect(page.getByRole("heading", { name: /Aurora Education Group AI brain/i })).toBeVisible();

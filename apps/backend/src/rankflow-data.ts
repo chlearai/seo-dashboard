@@ -2,6 +2,8 @@ import type {
   ActionItem,
   AiBrainProfile,
   AuditIntelligenceStack,
+  CrawlerEvaluation,
+  CrawlerPageSnapshot,
   ExpertEfficiency,
   HodSummary,
   LocalVisibilityProfile,
@@ -11,7 +13,7 @@ import type {
   SeverityCounts,
   Workspace
 } from "@rankflow/shared";
-import { getLatestScan, scoreHealth } from "@rankflow/shared";
+import { evaluateCrawlerPages, getLatestScan, scoreHealth } from "@rankflow/shared";
 
 export { getLatestScan, scoreHealth };
 
@@ -578,18 +580,96 @@ export const aiBrainByWorkspace: Record<string, AiBrainProfile> = {
   }
 };
 
+const auroraCrawlerPages: CrawlerPageSnapshot[] = [
+  {
+    id: "crawl-aurora-home",
+    url: "https://aurora.edu/",
+    priority: "core",
+    statusCode: 200,
+    title: "Aurora Education Group | Future-ready degrees",
+    metaDescription: "Degree and admissions programs at Aurora Education Group.",
+    h1: "Aurora Education Group",
+    canonicalUrl: "https://aurora.edu/",
+    indexable: true,
+    schemaTypes: ["Organization", "WebSite"],
+    missingImageAlts: 0,
+    brokenInternalLinks: 0,
+    loadTimeMs: 1800
+  },
+  {
+    id: "crawl-aurora-mba",
+    url: "https://aurora.edu/programs/mba",
+    priority: "core",
+    statusCode: 200,
+    title: "MBA Admissions | Aurora Education Group",
+    metaDescription: "Join the Aurora MBA program with career-focused admissions support.",
+    h1: "MBA Admissions",
+    canonicalUrl: "https://aurora.edu/programs/mba",
+    indexable: true,
+    schemaTypes: ["Course", "FAQPage"],
+    missingImageAlts: 0,
+    brokenInternalLinks: 0,
+    loadTimeMs: 2100
+  },
+  {
+    id: "crawl-aurora-mba-duplicate",
+    url: "https://aurora.edu/programs/mba/eligibility",
+    priority: "important",
+    statusCode: 200,
+    title: null,
+    metaDescription: "Join the Aurora MBA program with career-focused admissions support.",
+    h1: null,
+    canonicalUrl: "https://aurora.edu/programs",
+    indexable: false,
+    schemaTypes: [],
+    missingImageAlts: 2,
+    brokenInternalLinks: 3,
+    loadTimeMs: 3200
+  },
+  {
+    id: "crawl-aurora-scholarships",
+    url: "https://aurora.edu/scholarships",
+    priority: "important",
+    statusCode: 200,
+    title: "Scholarships | Aurora Education Group",
+    metaDescription: "Scholarships and financial aid support for Aurora students.",
+    h1: "Scholarships",
+    canonicalUrl: "https://aurora.edu/scholarships",
+    indexable: true,
+    schemaTypes: ["FAQPage"],
+    missingImageAlts: 1,
+    brokenInternalLinks: 1,
+    loadTimeMs: 2600
+  },
+  {
+    id: "crawl-aurora-campus",
+    url: "https://aurora.edu/campuses/delhi",
+    priority: "supporting",
+    statusCode: 200,
+    title: "Delhi Campus | Aurora Education Group",
+    metaDescription: "Join the Aurora MBA program with career-focused admissions support.",
+    h1: "Delhi Campus",
+    canonicalUrl: "https://aurora.edu/campuses/delhi/",
+    indexable: true,
+    schemaTypes: ["LocalBusiness"],
+    missingImageAlts: 0,
+    brokenInternalLinks: 0,
+    loadTimeMs: 1950
+  }
+];
+
+const auroraCrawlerEvaluation: CrawlerEvaluation = evaluateCrawlerPages(auroraCrawlerPages);
+
+export const ownCrawlerByWorkspace: Record<string, CrawlerEvaluation> = {
+  "aurora-education": auroraCrawlerEvaluation
+};
+
 export const auditIntelligenceByWorkspace: Record<string, AuditIntelligenceStack> = {
   "aurora-education": {
     workspaceId: "aurora-education",
     sourceStatuses: [
       {
-        source: "own-crawler",
-        label: "Own crawler",
-        status: "Connected",
-        coverageScore: 84,
-        lastSyncedAt: "2026-05-28",
-        recordsAvailable: 842,
-        primaryUse: "Core technical checks"
+        ...auroraCrawlerEvaluation.sourceStatus
       },
       {
         source: "screaming-frog",
@@ -656,19 +736,9 @@ export const auditIntelligenceByWorkspace: Record<string, AuditIntelligenceStack
       }
     ],
     technicalChecks: [
+      ...auroraCrawlerEvaluation.ruleChecks,
       {
-        id: "tc-aurora-title",
-        category: "technical",
-        label: "Missing titles",
-        description: "Pages without title tags in crawl output",
-        severity: "high",
-        affectedUrls: 12,
-        passedUrls: 830,
-        failedUrls: 12,
-        source: "own-crawler"
-      },
-      {
-        id: "tc-aurora-meta",
+        id: "tc-aurora-screaming-frog-meta",
         category: "content",
         label: "Duplicate meta descriptions",
         description: "Program and scholarship pages sharing near-identical descriptions",
@@ -679,29 +749,7 @@ export const auditIntelligenceByWorkspace: Record<string, AuditIntelligenceStack
         source: "screaming-frog"
       },
       {
-        id: "tc-aurora-canonical",
-        category: "indexability",
-        label: "Canonical conflicts",
-        description: "Course pages with canonicals pointing to generic category pages",
-        severity: "critical",
-        affectedUrls: 5,
-        passedUrls: 837,
-        failedUrls: 5,
-        source: "own-crawler"
-      },
-      {
-        id: "tc-aurora-noindex",
-        category: "indexability",
-        label: "Blocked important pages",
-        description: "Lead-generating pages marked noindex",
-        severity: "critical",
-        affectedUrls: 3,
-        passedUrls: 839,
-        failedUrls: 3,
-        source: "own-crawler"
-      },
-      {
-        id: "tc-aurora-links",
+        id: "tc-aurora-screaming-frog-links",
         category: "internal-linking",
         label: "Broken internal links",
         description: "Internal links returning 4xx status codes",
@@ -709,39 +757,6 @@ export const auditIntelligenceByWorkspace: Record<string, AuditIntelligenceStack
         affectedUrls: 19,
         passedUrls: 823,
         failedUrls: 19,
-        source: "screaming-frog"
-      },
-      {
-        id: "tc-aurora-schema",
-        category: "schema",
-        label: "Schema missing",
-        description: "Priority course pages without FAQ or Course schema",
-        severity: "high",
-        affectedUrls: 17,
-        passedUrls: 825,
-        failedUrls: 17,
-        source: "own-crawler"
-      },
-      {
-        id: "tc-aurora-alt",
-        category: "content",
-        label: "Image alt missing",
-        description: "Images without descriptive alt text",
-        severity: "medium",
-        affectedUrls: 44,
-        passedUrls: 798,
-        failedUrls: 44,
-        source: "own-crawler"
-      },
-      {
-        id: "tc-aurora-speed",
-        category: "performance",
-        label: "Slow pages",
-        description: "Pages with mobile LCP above target threshold",
-        severity: "high",
-        affectedUrls: 11,
-        passedUrls: 831,
-        failedUrls: 11,
         source: "screaming-frog"
       }
     ],
@@ -775,7 +790,7 @@ export const auditIntelligenceByWorkspace: Record<string, AuditIntelligenceStack
 
 export const currentSession: RankFlowSession = {
   activeWorkspaceId: "aurora-education",
-  visibleModules: ["dashboard", "ai-brain", "audit-intelligence", "growth-cycle", "scan-history", "on-page-audit", "ai-suggestions", "local-visibility", "keywords", "workbook", "reports"],
+  visibleModules: ["dashboard", "own-crawler", "ai-brain", "audit-intelligence", "growth-cycle", "scan-history", "on-page-audit", "ai-suggestions", "local-visibility", "keywords", "workbook", "reports"],
   user: {
     id: "user-maya-hod",
     email: "maya.hod@rankflow.example",
@@ -786,7 +801,7 @@ export const currentSession: RankFlowSession = {
       {
         workspaceId: "aurora-education",
         role: "manager",
-        modulesEnabled: ["dashboard", "ai-brain", "audit-intelligence", "growth-cycle", "scan-history", "on-page-audit", "ai-suggestions", "local-visibility", "keywords", "workbook", "reports"],
+        modulesEnabled: ["dashboard", "own-crawler", "ai-brain", "audit-intelligence", "growth-cycle", "scan-history", "on-page-audit", "ai-suggestions", "local-visibility", "keywords", "workbook", "reports"],
         canAssignTasks: true,
         suggestionAccess: "full",
         canGenerateReports: true,
@@ -797,7 +812,7 @@ export const currentSession: RankFlowSession = {
       {
         workspaceId: "nimbus-health",
         role: "manager",
-        modulesEnabled: ["dashboard", "ai-brain", "audit-intelligence", "growth-cycle", "scan-history", "on-page-audit", "ai-suggestions", "local-visibility", "keywords", "workbook", "reports"],
+        modulesEnabled: ["dashboard", "own-crawler", "ai-brain", "audit-intelligence", "growth-cycle", "scan-history", "on-page-audit", "ai-suggestions", "local-visibility", "keywords", "workbook", "reports"],
         canAssignTasks: true,
         suggestionAccess: "full",
         canGenerateReports: true,

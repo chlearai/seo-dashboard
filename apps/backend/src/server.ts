@@ -63,7 +63,7 @@ const server = createServer(async (request, response) => {
   }
 
   const workspaceCollectionMatch = url.pathname.match(
-    /^\/api\/workspaces\/([^/]+)\/(scans|audit-categories|suggestions|tasks|keywords|reports|local-visibility|growth-cycles|organic-metrics|action-items|expert-efficiency|ai-brain|audit-intelligence)$/
+    /^\/api\/workspaces\/([^/]+)\/(scans|audit-categories|suggestions|tasks|keywords|reports|local-visibility|growth-cycles|organic-metrics|action-items|expert-efficiency|own-crawler|ai-brain|audit-intelligence)$/
   );
   if (workspaceCollectionMatch) {
     const [, workspaceId, collection] = workspaceCollectionMatch;
@@ -121,6 +121,11 @@ const server = createServer(async (request, response) => {
 
     if (collection === "expert-efficiency") {
       jsonResponse(response, 200, await rankFlowRepository.listExpertEfficiency(workspaceId));
+      return;
+    }
+
+    if (collection === "own-crawler") {
+      jsonResponse(response, 200, await rankFlowRepository.getOwnCrawler(workspaceId));
       return;
     }
 

@@ -53,6 +53,10 @@ export function WorkspaceDetail({ workspace }: { workspace: Workspace }) {
       </section>
 
       <section className="module-grid" aria-label="Workspace modules">
+        <Link className="module-card" href={`/workspaces/${workspace.id}/own-crawler`}>
+          <strong>Own Crawler</strong>
+          <span>Deterministic technical rule engine and crawl evidence</span>
+        </Link>
         <Link className="module-card" href={`/workspaces/${workspace.id}/scans`}>
           <strong>Scan History</strong>
           <span>Versioned crawl snapshots and score comparison</span>

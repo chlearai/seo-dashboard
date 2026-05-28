@@ -4,6 +4,7 @@ import type {
   AiSuggestion,
   AuditCategory,
   AuditIntelligenceStack,
+  CrawlerEvaluation,
   ExpertEfficiency,
   HodSummary,
   KeywordRanking,
@@ -26,6 +27,7 @@ import {
   getWorkspaceById,
   growthCyclesByWorkspace,
   organicMetricSnapshotsByWorkspace,
+  ownCrawlerByWorkspace,
   workspaces
 } from "../rankflow-data";
 import {
@@ -57,6 +59,7 @@ export interface RankFlowRepository {
   listOrganicMetricSnapshots(workspaceId: string): Promise<OrganicGrowthMetricSnapshot[]>;
   listActionItems(workspaceId: string): Promise<ActionItem[]>;
   listExpertEfficiency(workspaceId: string): Promise<ExpertEfficiency[]>;
+  getOwnCrawler(workspaceId: string): Promise<CrawlerEvaluation | undefined>;
   getAiBrain(workspaceId: string): Promise<AiBrainProfile | undefined>;
   getAuditIntelligence(workspaceId: string): Promise<AuditIntelligenceStack | undefined>;
 }
@@ -175,6 +178,10 @@ export class FixtureRankFlowRepository implements RankFlowRepository {
 
   async listExpertEfficiency(workspaceId: string) {
     return expertEfficiencyByWorkspace[workspaceId] ?? [];
+  }
+
+  async getOwnCrawler(workspaceId: string) {
+    return ownCrawlerByWorkspace[workspaceId];
   }
 
   async getAiBrain(workspaceId: string) {

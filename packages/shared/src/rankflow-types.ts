@@ -8,6 +8,7 @@ export type RankFlowRole = "super_admin" | "hod" | "manager" | "specialist" | "a
 
 export type RankFlowModule =
   | "dashboard"
+  | "own-crawler"
   | "ai-brain"
   | "audit-intelligence"
   | "growth-cycle"
@@ -256,6 +257,81 @@ export interface LocalVisibilitySummary {
   gbpActionCount: number;
   unansweredReviews: number;
   mapsVisibilityScore: number;
+}
+
+export type CrawlerPagePriority = "core" | "important" | "supporting";
+
+export type CrawlerFindingRule =
+  | "missing-title"
+  | "missing-h1"
+  | "duplicate-meta"
+  | "canonical-conflict"
+  | "blocked-important-page"
+  | "broken-internal-links"
+  | "schema-missing"
+  | "image-alt-missing"
+  | "slow-page"
+  | "status-code";
+
+export interface CrawlerPageSnapshot {
+  id: string;
+  url: string;
+  priority: CrawlerPagePriority;
+  statusCode: number;
+  title: string | null;
+  metaDescription: string | null;
+  h1: string | null;
+  canonicalUrl: string | null;
+  indexable: boolean;
+  schemaTypes: string[];
+  missingImageAlts: number;
+  brokenInternalLinks: number;
+  loadTimeMs: number;
+}
+
+export interface CrawlerFinding {
+  id: string;
+  rule: CrawlerFindingRule;
+  label: string;
+  severity: Severity;
+  url: string;
+  detail: string;
+}
+
+export interface CrawlerRuleCheckSummary {
+  id: string;
+  label: string;
+  description: string;
+  category: AuditSignalCategory;
+  source: "own-crawler";
+  affectedUrls: number;
+  passedUrls: number;
+  failedUrls: number;
+  severity: Severity;
+}
+
+export interface CrawlerEvaluationSummary {
+  pagesCrawled: number;
+  healthyPages: number;
+  findings: number;
+  criticalFindings: number;
+  missingTitles: number;
+  missingH1s: number;
+  duplicateMetaDescriptions: number;
+  canonicalConflicts: number;
+  blockedImportantPages: number;
+  brokenInternalLinks: number;
+  schemaMissing: number;
+  imageAltMissing: number;
+  slowPages: number;
+  statusCodeErrors: number;
+}
+
+export interface CrawlerEvaluation {
+  sourceStatus: AuditEvidenceSourceStatus;
+  ruleChecks: CrawlerRuleCheckSummary[];
+  findings: CrawlerFinding[];
+  summary: CrawlerEvaluationSummary;
 }
 
 export interface OrganicGrowthMetricSnapshot {

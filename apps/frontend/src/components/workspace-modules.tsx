@@ -4,6 +4,7 @@ import {
   getActionIntelligenceSummary,
   getAiBrainSummary,
   getAuditIntelligenceSummary,
+  type CrawlerEvaluation,
   getExpertEfficiencySummary,
   getKeywordSummary,
   getLocalVisibilitySummary,
@@ -100,6 +101,97 @@ export function ScanHistoryModule({
                   C{scan.issues.critical} / H{scan.issues.high} / M{scan.issues.medium} / L{scan.issues.low}
                 </td>
                 <td>{scan.suggestionsGenerated}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </section>
+    </main>
+  );
+}
+
+export function OwnCrawlerModule({
+  crawler,
+  workspace
+}: {
+  crawler: CrawlerEvaluation;
+  workspace: Workspace;
+}) {
+  return (
+    <main className="page">
+      <PageHeader
+        eyebrow="Own Crawler"
+        title={`${workspace.clientName} crawler rules`}
+        description="Deterministic technical checks for titles, H1s, canonicals, indexability, links, schema, image alts, and performance."
+        actionHref={`/workspaces/${workspace.id}/audit-intelligence`}
+        actionLabel="Open audit intelligence"
+      />
+
+      <section className="summary-grid">
+        <MetricCard label="Pages Crawled" value={crawler.summary.pagesCrawled} detail="Sampled technical pages" />
+        <MetricCard label="Healthy Pages" value={crawler.summary.healthyPages} detail="Pages with no findings" />
+        <MetricCard label="Findings" value={crawler.summary.findings} detail="Total rule breaks" />
+        <MetricCard label="Critical Findings" value={crawler.summary.criticalFindings} detail="Highest severity items" />
+        <MetricCard label="Coverage" value={`${crawler.sourceStatus.coverageScore}%`} detail={crawler.sourceStatus.primaryUse} />
+        <MetricCard label="Crawler Status" value={crawler.sourceStatus.status} detail={crawler.sourceStatus.lastSyncedAt} />
+      </section>
+
+      <section className="panel">
+        <div className="card-row">
+          <div>
+            <p className="eyebrow">Rule engine</p>
+            <h2>Technical checks</h2>
+          </div>
+          <span className="evidence-chip">{crawler.sourceStatus.label}</span>
+        </div>
+        <table className="data-table">
+          <thead>
+            <tr>
+              <th>Rule</th>
+              <th>Category</th>
+              <th>Severity</th>
+              <th>Failed</th>
+              <th>Passed</th>
+            </tr>
+          </thead>
+          <tbody>
+            {crawler.ruleChecks.map((check) => (
+              <tr key={check.id}>
+                <td><strong>{check.label}</strong></td>
+                <td>{check.category}</td>
+                <td><ToneBadge label={check.severity} tone={check.severity} /></td>
+                <td>{check.failedUrls}</td>
+                <td>{check.passedUrls}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </section>
+
+      <section className="panel">
+        <div className="card-row">
+          <div>
+            <p className="eyebrow">Findings</p>
+            <h2>URL-level issues</h2>
+          </div>
+          <span className="small-label">{crawler.findings.length} findings</span>
+        </div>
+        <table className="data-table">
+          <thead>
+            <tr>
+              <th>URL</th>
+              <th>Rule</th>
+              <th>Severity</th>
+              <th>Detail</th>
+            </tr>
+          </thead>
+          <tbody>
+            {crawler.findings.map((finding) => (
+              <tr key={finding.id}>
+                <td>{finding.url}</td>
+                <td>{finding.label}</td>
+                <td><ToneBadge label={finding.severity} tone={finding.severity} /></td>
+                <td className="muted">{finding.detail}</td>
               </tr>
             ))}
           </tbody>

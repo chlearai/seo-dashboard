@@ -4,6 +4,7 @@ import type {
   AiSuggestion,
   AuditCategory,
   AuditIntelligenceStack,
+  CrawlerEvaluation,
   ExpertEfficiency,
   HodSummary,
   KeywordRanking,
@@ -94,6 +95,10 @@ export async function getWorkspaceAiBrain(workspaceId: string) {
 
 export async function getWorkspaceAuditIntelligence(workspaceId: string) {
   return fetchJson<AuditIntelligenceStack>(`/api/workspaces/${workspaceId}/audit-intelligence`);
+}
+
+export async function getWorkspaceOwnCrawler(workspaceId: string) {
+  return fetchJson<CrawlerEvaluation>(`/api/workspaces/${workspaceId}/own-crawler`);
 }
 
 export async function getSession() {

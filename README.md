@@ -39,6 +39,7 @@ npm run dev:frontend
 - `GET /api/session`
 - `GET /api/workspaces`
 - `GET /api/workspaces/:id`
+- `GET /api/workspaces/:id/own-crawler`
 - `GET /api/workspaces/:id/ai-brain`
 - `GET /api/workspaces/:id/audit-intelligence`
 - `GET /api/workspaces/:id/growth-cycles`

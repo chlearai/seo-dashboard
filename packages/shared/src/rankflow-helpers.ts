@@ -3,6 +3,10 @@ import type {
   ActionItem,
   AiBrainProfile,
   AiBrainSummary,
+  CrawlerFinding,
+  CrawlerEvaluation,
+  CrawlerPageSnapshot,
+  CrawlerRuleCheckSummary,
   AiSuggestion,
   AuditIntelligenceStack,
   AuditIntelligenceSummary,
@@ -23,6 +27,7 @@ import type {
   ScanSnapshot,
   ScoreHealth,
   SuggestionInboxSummary,
+  Severity,
   WorkbookStatusColumn,
   WorkbookTask,
   WorkspaceAccess,
@@ -210,6 +215,238 @@ export function getAuditIntelligenceSummary(stack: AuditIntelligenceStack): Audi
   };
 }
 
+function normalizeUrl(url: string) {
+  return url.replace(/\/+$/, "");
+}
+
+export function evaluateCrawlerPages(pages: CrawlerPageSnapshot[]): CrawlerEvaluation {
+  const findings: CrawlerFinding[] = [];
+  const ruleChecks: CrawlerRuleCheckSummary[] = [];
+  const duplicateMetaGroups = new Map<string, CrawlerPageSnapshot[]>();
+
+  for (const page of pages) {
+    const metaKey = page.metaDescription?.trim();
+    if (metaKey) {
+      const existing = duplicateMetaGroups.get(metaKey) ?? [];
+      existing.push(page);
+      duplicateMetaGroups.set(metaKey, existing);
+    }
+
+    if (!page.title?.trim()) {
+      findings.push({
+        id: `${page.id}-missing-title`,
+        rule: "missing-title",
+        label: "Missing title",
+        severity: "high",
+        url: page.url,
+        detail: "The page does not expose a title tag."
+      });
+    }
+
+    if (!page.h1?.trim()) {
+      findings.push({
+        id: `${page.id}-missing-h1`,
+        rule: "missing-h1",
+        label: "Missing H1",
+        severity: "medium",
+        url: page.url,
+        detail: "The page does not expose a primary H1 heading."
+      });
+    }
+
+    if (page.canonicalUrl && normalizeUrl(page.canonicalUrl) !== normalizeUrl(page.url)) {
+      findings.push({
+        id: `${page.id}-canonical-conflict`,
+        rule: "canonical-conflict",
+        label: "Canonical conflict",
+        severity: "critical",
+        url: page.url,
+        detail: `Canonical points to ${page.canonicalUrl} instead of the page URL.`
+      });
+    }
+
+    if (!page.indexable && page.priority !== "supporting") {
+      findings.push({
+        id: `${page.id}-blocked-important-page`,
+        rule: "blocked-important-page",
+        label: "Blocked important page",
+        severity: "critical",
+        url: page.url,
+        detail: "An important page is not indexable."
+      });
+    }
+
+    if (page.statusCode >= 400) {
+      findings.push({
+        id: `${page.id}-status-code`,
+        rule: "status-code",
+        label: "Status code error",
+        severity: page.statusCode >= 500 ? "critical" : "high",
+        url: page.url,
+        detail: `The page returned HTTP ${page.statusCode}.`
+      });
+    }
+
+    if (page.brokenInternalLinks > 0) {
+      findings.push({
+        id: `${page.id}-broken-internal-links`,
+        rule: "broken-internal-links",
+        label: "Broken internal links",
+        severity: "high",
+        url: page.url,
+        detail: `${page.brokenInternalLinks} broken internal links detected.`
+      });
+    }
+
+    if (page.schemaTypes.length === 0) {
+      findings.push({
+        id: `${page.id}-schema-missing`,
+        rule: "schema-missing",
+        label: "Schema missing",
+        severity: "high",
+        url: page.url,
+        detail: "No structured data types were detected on the page."
+      });
+    }
+
+    if (page.missingImageAlts > 0) {
+      findings.push({
+        id: `${page.id}-image-alt-missing`,
+        rule: "image-alt-missing",
+        label: "Image alt missing",
+        severity: "medium",
+        url: page.url,
+        detail: `${page.missingImageAlts} images are missing alt text.`
+      });
+    }
+
+    if (page.loadTimeMs > 2500) {
+      findings.push({
+        id: `${page.id}-slow-page`,
+        rule: "slow-page",
+        label: "Slow page",
+        severity: "high",
+        url: page.url,
+        detail: `Mobile load time is ${page.loadTimeMs} ms.`
+      });
+    }
+  }
+
+  for (const [metaDescription, metaPages] of duplicateMetaGroups.entries()) {
+    if (metaPages.length > 1) {
+      for (const page of metaPages) {
+        findings.push({
+          id: `${page.id}-duplicate-meta`,
+          rule: "duplicate-meta",
+          label: "Duplicate meta description",
+          severity: "medium",
+          url: page.url,
+          detail: `Shared meta description: ${metaDescription}`
+        });
+      }
+    }
+  }
+
+  const pageFindingMap = new Map<string, CrawlerFinding[]>();
+  for (const finding of findings) {
+    const bucket = pageFindingMap.get(finding.url) ?? [];
+    bucket.push(finding);
+    pageFindingMap.set(finding.url, bucket);
+  }
+
+  const summary = {
+    pagesCrawled: pages.length,
+    healthyPages: pages.filter((page) => (pageFindingMap.get(page.url) ?? []).length === 0).length,
+    findings: findings.length,
+    criticalFindings: findings.filter((finding) => finding.severity === "critical").length,
+    missingTitles: findings.filter((finding) => finding.rule === "missing-title").length,
+    missingH1s: findings.filter((finding) => finding.rule === "missing-h1").length,
+    duplicateMetaDescriptions: findings.filter((finding) => finding.rule === "duplicate-meta").length,
+    canonicalConflicts: findings.filter((finding) => finding.rule === "canonical-conflict").length,
+    blockedImportantPages: findings.filter((finding) => finding.rule === "blocked-important-page").length,
+    brokenInternalLinks: findings.filter((finding) => finding.rule === "broken-internal-links").length,
+    schemaMissing: findings.filter((finding) => finding.rule === "schema-missing").length,
+    imageAltMissing: findings.filter((finding) => finding.rule === "image-alt-missing").length,
+    slowPages: findings.filter((finding) => finding.rule === "slow-page").length,
+    statusCodeErrors: findings.filter((finding) => finding.rule === "status-code").length
+  };
+
+  const makeCheck = (
+    id: string,
+    label: string,
+    description: string,
+    category: CrawlerRuleCheckSummary["category"],
+    severity: Severity,
+    failedUrls: number
+  ): CrawlerRuleCheckSummary => ({
+    id,
+    label,
+    description,
+    category,
+    source: "own-crawler",
+    affectedUrls: failedUrls,
+    passedUrls: Math.max(0, pages.length - failedUrls),
+    failedUrls,
+    severity
+  });
+
+  ruleChecks.push(
+    makeCheck("crawler-title", "Missing titles", "Pages without title tags.", "technical", "high", summary.missingTitles),
+    makeCheck("crawler-h1", "Missing H1s", "Pages without a primary H1 heading.", "content", "medium", summary.missingH1s),
+    makeCheck(
+      "crawler-meta",
+      "Duplicate meta descriptions",
+      "Pages sharing the same meta description.",
+      "content",
+      "medium",
+      summary.duplicateMetaDescriptions
+    ),
+    makeCheck(
+      "crawler-canonical",
+      "Canonical conflicts",
+      "Pages canonicalizing to a different URL.",
+      "indexability",
+      "critical",
+      summary.canonicalConflicts
+    ),
+    makeCheck(
+      "crawler-indexability",
+      "Blocked important pages",
+      "Important pages that are not indexable.",
+      "indexability",
+      "critical",
+      summary.blockedImportantPages
+    ),
+    makeCheck(
+      "crawler-links",
+      "Broken internal links",
+      "Pages with broken internal links.",
+      "internal-linking",
+      "high",
+      summary.brokenInternalLinks
+    ),
+    makeCheck("crawler-schema", "Schema missing", "Pages without structured data.", "schema", "high", summary.schemaMissing),
+    makeCheck("crawler-alt", "Image alt missing", "Images without alt text.", "content", "medium", summary.imageAltMissing),
+    makeCheck("crawler-speed", "Slow pages", "Pages above the load-time threshold.", "performance", "high", summary.slowPages),
+    makeCheck("crawler-status", "Status code errors", "Pages returning 4xx or 5xx codes.", "technical", "critical", summary.statusCodeErrors)
+  );
+
+  return {
+    sourceStatus: {
+      source: "own-crawler",
+      label: "Own crawler",
+      status: pages.length > 0 ? "Connected" : "Needs Setup",
+      coverageScore: pages.length ? Math.min(100, 60 + pages.length * 4) : 0,
+      lastSyncedAt: pages.length ? "Live rule evaluation" : "Not connected",
+      recordsAvailable: pages.length,
+      primaryUse: "Core technical rule checks"
+    },
+    ruleChecks,
+    findings,
+    summary
+  };
+}
+
 export function hasWorkspaceAccess(
   role: RankFlowRole,
   accessList: WorkspaceAccess[],
@@ -235,6 +472,7 @@ export function getVisibleModules(role: RankFlowRole, accessList: WorkspaceAcces
   if (role === "super_admin" || role === "hod") {
     return [
       "dashboard",
+      "own-crawler",
       "ai-brain",
       "audit-intelligence",
       "growth-cycle",
