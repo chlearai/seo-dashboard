@@ -3,9 +3,11 @@ import type {
   ActionItem,
   AiBrainProfile,
   AiBrainSummary,
+  AuditEvidenceSourceStatus,
   CrawlerFinding,
   CrawlerEvaluation,
   CrawlerPageSnapshot,
+  CrawlerSource,
   CrawlerRuleCheckSummary,
   AiSuggestion,
   AuditIntelligenceStack,
@@ -31,6 +33,7 @@ import type {
   WorkbookStatusColumn,
   WorkbookTask,
   WorkspaceAccess,
+  ScreamingFrogImportRow,
   Workspace
 } from "./rankflow-types";
 
@@ -219,7 +222,101 @@ function normalizeUrl(url: string) {
   return url.replace(/\/+$/, "");
 }
 
-export function evaluateCrawlerPages(pages: CrawlerPageSnapshot[]): CrawlerEvaluation {
+function parseInteger(value: string | undefined) {
+  const parsed = Number.parseInt(value ?? "", 10);
+  return Number.isFinite(parsed) ? parsed : 0;
+}
+
+function parseCsvLine(line: string) {
+  const cells: string[] = [];
+  let current = "";
+  let inQuotes = false;
+
+  for (let index = 0; index < line.length; index += 1) {
+    const char = line[index];
+    const next = line[index + 1];
+
+    if (char === '"') {
+      if (inQuotes && next === '"') {
+        current += '"';
+        index += 1;
+      } else {
+        inQuotes = !inQuotes;
+      }
+      continue;
+    }
+
+    if (char === "," && !inQuotes) {
+      cells.push(current);
+      current = "";
+      continue;
+    }
+
+    current += char;
+  }
+
+  cells.push(current);
+  return cells.map((cell) => cell.trim());
+}
+
+export function parseScreamingFrogCsv(csvText: string): ScreamingFrogImportRow[] {
+  const trimmed = csvText.trim();
+  if (!trimmed) return [];
+
+  const [headerLine, ...lines] = trimmed.split(/\r?\n/);
+  const headers = parseCsvLine(headerLine);
+
+  return lines.filter(Boolean).map((line) => {
+    const cells = parseCsvLine(line);
+    const row = Object.fromEntries(headers.map((header, index) => [header, cells[index] ?? ""])) as Record<string, string>;
+
+    return {
+      address: row.Address ?? row["URL"] ?? "",
+      statusCode: parseInteger(row["Status Code"]),
+      title: row["Title 1"]?.trim() || null,
+      metaDescription: row["Meta Description 1"]?.trim() || null,
+      h1: row["H1-1"]?.trim() || null,
+      canonicalUrl: row["Canonical Link Element 1"]?.trim() || null,
+      indexability: row.Indexability ?? "",
+      imagesMissingAltText: parseInteger(row["Images Missing Alt Text"]),
+      brokenInternalLinks: parseInteger(row["Broken Internal Links"]),
+      responseTimeMs: parseInteger(row["Response Time (ms)"] ?? row["Response Time"])
+    };
+  });
+}
+
+function mapScreamingFrogRowsToPages(rows: ScreamingFrogImportRow[]): CrawlerPageSnapshot[] {
+  return rows.map((row, index) => ({
+    id: `sf-${index + 1}`,
+    url: row.address,
+    priority: row.indexability.toLowerCase().includes("indexable") ? "core" : "important",
+    statusCode: row.statusCode,
+    title: row.title,
+    metaDescription: row.metaDescription,
+    h1: row.h1,
+    canonicalUrl: row.canonicalUrl,
+    indexable: row.indexability.toLowerCase().includes("indexable") && !row.indexability.toLowerCase().includes("non"),
+    schemaTypes: [],
+    missingImageAlts: row.imagesMissingAltText,
+    brokenInternalLinks: row.brokenInternalLinks,
+    loadTimeMs: row.responseTimeMs
+  }));
+}
+
+interface CrawlerEvaluationOptions {
+  source?: CrawlerSource;
+  label?: string;
+  primaryUse?: string;
+  status?: AuditEvidenceSourceStatus["status"];
+  lastSyncedAt?: string;
+}
+
+export function evaluateCrawlerPages(
+  pages: CrawlerPageSnapshot[],
+  options: CrawlerEvaluationOptions = {}
+): CrawlerEvaluation {
+  const source = options.source ?? "own-crawler";
+  const label = options.label ?? "Own crawler";
   const findings: CrawlerFinding[] = [];
   const ruleChecks: CrawlerRuleCheckSummary[] = [];
   const duplicateMetaGroups = new Map<string, CrawlerPageSnapshot[]>();
@@ -383,7 +480,7 @@ export function evaluateCrawlerPages(pages: CrawlerPageSnapshot[]): CrawlerEvalu
     label,
     description,
     category,
-    source: "own-crawler",
+    source,
     affectedUrls: failedUrls,
     passedUrls: Math.max(0, pages.length - failedUrls),
     failedUrls,
@@ -433,18 +530,28 @@ export function evaluateCrawlerPages(pages: CrawlerPageSnapshot[]): CrawlerEvalu
 
   return {
     sourceStatus: {
-      source: "own-crawler",
-      label: "Own crawler",
-      status: pages.length > 0 ? "Connected" : "Needs Setup",
+      source,
+      label,
+      status: options.status ?? (pages.length > 0 ? "Connected" : "Needs Setup"),
       coverageScore: pages.length ? Math.min(100, 60 + pages.length * 4) : 0,
-      lastSyncedAt: pages.length ? "Live rule evaluation" : "Not connected",
+      lastSyncedAt: options.lastSyncedAt ?? (pages.length ? "Live rule evaluation" : "Not connected"),
       recordsAvailable: pages.length,
-      primaryUse: "Core technical rule checks"
+      primaryUse: options.primaryUse ?? "Core technical rule checks"
     },
     ruleChecks,
     findings,
     summary
   };
+}
+
+export function evaluateScreamingFrogCsv(csvText: string): CrawlerEvaluation {
+  return evaluateCrawlerPages(mapScreamingFrogRowsToPages(parseScreamingFrogCsv(csvText)), {
+    source: "screaming-frog",
+    label: "Screaming Frog",
+    status: "Import Ready",
+    primaryUse: "Deep technical crawl import",
+    lastSyncedAt: "Imported from CSV"
+  });
 }
 
 export function hasWorkspaceAccess(
@@ -473,6 +580,7 @@ export function getVisibleModules(role: RankFlowRole, accessList: WorkspaceAcces
     return [
       "dashboard",
       "own-crawler",
+      "screaming-frog",
       "ai-brain",
       "audit-intelligence",
       "growth-cycle",

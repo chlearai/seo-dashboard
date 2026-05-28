@@ -101,6 +101,10 @@ export async function getWorkspaceOwnCrawler(workspaceId: string) {
   return fetchJson<CrawlerEvaluation>(`/api/workspaces/${workspaceId}/own-crawler`);
 }
 
+export async function getWorkspaceScreamingFrog(workspaceId: string) {
+  return fetchJson<CrawlerEvaluation>(`/api/workspaces/${workspaceId}/screaming-frog`);
+}
+
 export async function getSession() {
   return fetchJson<RankFlowSession>("/api/session");
 }

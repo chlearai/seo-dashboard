@@ -24,6 +24,7 @@ import { canPerformAction, type RankFlowModule, type RankFlowSession } from "@ra
 const modules = [
   { id: "dashboard", label: "Dashboard", href: "/", Icon: LayoutDashboard },
   { id: "own-crawler", label: "Own Crawler", href: "/workspaces/aurora-education/own-crawler", Icon: Search },
+  { id: "screaming-frog", label: "Screaming Frog", href: "/workspaces/aurora-education/screaming-frog", Icon: ScanSearch },
   { id: "ai-brain", label: "AI Brain", href: "/workspaces/aurora-education/ai-brain", Icon: BrainCircuit },
   { id: "audit-intelligence", label: "Audit Intelligence", href: "/workspaces/aurora-education/audit-intelligence", Icon: ScanSearch },
   { id: "growth-cycle", label: "Growth Cycle", href: "/workspaces/aurora-education/growth-cycle", Icon: RefreshCcwDot },

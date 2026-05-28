@@ -9,6 +9,7 @@ export type RankFlowRole = "super_admin" | "hod" | "manager" | "specialist" | "a
 export type RankFlowModule =
   | "dashboard"
   | "own-crawler"
+  | "screaming-frog"
   | "ai-brain"
   | "audit-intelligence"
   | "growth-cycle"
@@ -261,6 +262,8 @@ export interface LocalVisibilitySummary {
 
 export type CrawlerPagePriority = "core" | "important" | "supporting";
 
+export type CrawlerSource = "own-crawler" | "screaming-frog";
+
 export type CrawlerFindingRule =
   | "missing-title"
   | "missing-h1"
@@ -303,7 +306,7 @@ export interface CrawlerRuleCheckSummary {
   label: string;
   description: string;
   category: AuditSignalCategory;
-  source: "own-crawler";
+  source: CrawlerSource;
   affectedUrls: number;
   passedUrls: number;
   failedUrls: number;
@@ -332,6 +335,19 @@ export interface CrawlerEvaluation {
   ruleChecks: CrawlerRuleCheckSummary[];
   findings: CrawlerFinding[];
   summary: CrawlerEvaluationSummary;
+}
+
+export interface ScreamingFrogImportRow {
+  address: string;
+  statusCode: number;
+  title: string | null;
+  metaDescription: string | null;
+  h1: string | null;
+  canonicalUrl: string | null;
+  indexability: string;
+  imagesMissingAltText: number;
+  brokenInternalLinks: number;
+  responseTimeMs: number;
 }
 
 export interface OrganicGrowthMetricSnapshot {

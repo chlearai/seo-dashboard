@@ -110,21 +110,31 @@ export function ScanHistoryModule({
   );
 }
 
-export function OwnCrawlerModule({
+function CrawlerModuleView({
   crawler,
-  workspace
+  workspace,
+  eyebrow,
+  title,
+  description,
+  actionHref,
+  actionLabel
 }: {
   crawler: CrawlerEvaluation;
   workspace: Workspace;
+  eyebrow: string;
+  title: string;
+  description: string;
+  actionHref: string;
+  actionLabel: string;
 }) {
   return (
     <main className="page">
       <PageHeader
-        eyebrow="Own Crawler"
-        title={`${workspace.clientName} crawler rules`}
-        description="Deterministic technical checks for titles, H1s, canonicals, indexability, links, schema, image alts, and performance."
-        actionHref={`/workspaces/${workspace.id}/audit-intelligence`}
-        actionLabel="Open audit intelligence"
+        eyebrow={eyebrow}
+        title={`${workspace.clientName} ${title}`}
+        description={description}
+        actionHref={actionHref}
+        actionLabel={actionLabel}
       />
 
       <section className="summary-grid">
@@ -198,6 +208,46 @@ export function OwnCrawlerModule({
         </table>
       </section>
     </main>
+  );
+}
+
+export function OwnCrawlerModule({
+  crawler,
+  workspace
+}: {
+  crawler: CrawlerEvaluation;
+  workspace: Workspace;
+}) {
+  return (
+    <CrawlerModuleView
+      crawler={crawler}
+      workspace={workspace}
+      eyebrow="Own Crawler"
+      title="crawler rules"
+      description="Deterministic technical checks for titles, H1s, canonicals, indexability, links, schema, image alts, and performance."
+      actionHref={`/workspaces/${workspace.id}/audit-intelligence`}
+      actionLabel="Open audit intelligence"
+    />
+  );
+}
+
+export function ScreamingFrogModule({
+  crawler,
+  workspace
+}: {
+  crawler: CrawlerEvaluation;
+  workspace: Workspace;
+}) {
+  return (
+    <CrawlerModuleView
+      crawler={crawler}
+      workspace={workspace}
+      eyebrow="Screaming Frog"
+      title="Screaming Frog import"
+      description="Imported deep crawl coverage with the same technical rule engine used by the own crawler."
+      actionHref={`/workspaces/${workspace.id}/audit-intelligence`}
+      actionLabel="Open audit intelligence"
+    />
   );
 }
 
@@ -780,7 +830,7 @@ export function AuditIntelligenceModule({
           </thead>
           <tbody>
             {stack.technicalChecks.map((check) => (
-              <tr key={check.id}>
+              <tr key={`${check.source}-${check.id}`}>
                 <td><strong>{check.label}</strong><br /><span className="muted">{check.description}</span></td>
                 <td>{check.category}</td>
                 <td>{check.source}</td>

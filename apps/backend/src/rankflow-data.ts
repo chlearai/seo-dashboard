@@ -13,7 +13,7 @@ import type {
   SeverityCounts,
   Workspace
 } from "@rankflow/shared";
-import { evaluateCrawlerPages, getLatestScan, scoreHealth } from "@rankflow/shared";
+import { evaluateCrawlerPages, evaluateScreamingFrogCsv, getLatestScan, scoreHealth } from "@rankflow/shared";
 
 export { getLatestScan, scoreHealth };
 
@@ -660,8 +660,20 @@ const auroraCrawlerPages: CrawlerPageSnapshot[] = [
 
 const auroraCrawlerEvaluation: CrawlerEvaluation = evaluateCrawlerPages(auroraCrawlerPages);
 
+const auroraScreamingFrogCsv = `Address,Status Code,Title 1,Meta Description 1,H1-1,Canonical Link Element 1,Indexability,Images Missing Alt Text,Broken Internal Links,Response Time (ms)
+https://aurora.edu/programs/mba,200,MBA Admissions | Aurora Education Group,Join the Aurora MBA program with career-focused admissions support.,MBA Admissions,https://aurora.edu/programs/mba,Indexable,0,0,1450
+https://aurora.edu/programs/mba/eligibility,200,,Join the Aurora MBA program with career-focused admissions support.,,https://aurora.edu/programs,Non-Indexable,2,3,3210
+https://aurora.edu/scholarships,200,Scholarships | Aurora Education Group,Scholarships and financial aid support for Aurora students.,Scholarships,https://aurora.edu/scholarships,Indexable,1,1,2620
+https://aurora.edu/campuses/delhi,404,Delhi Campus | Aurora Education Group,Join the Aurora MBA program with career-focused admissions support.,Delhi Campus,https://aurora.edu/campuses/delhi,Indexable,0,0,980`;
+
+const auroraScreamingFrogEvaluation: CrawlerEvaluation = evaluateScreamingFrogCsv(auroraScreamingFrogCsv);
+
 export const ownCrawlerByWorkspace: Record<string, CrawlerEvaluation> = {
   "aurora-education": auroraCrawlerEvaluation
+};
+
+export const screamingFrogByWorkspace: Record<string, CrawlerEvaluation> = {
+  "aurora-education": auroraScreamingFrogEvaluation
 };
 
 export const auditIntelligenceByWorkspace: Record<string, AuditIntelligenceStack> = {
@@ -672,13 +684,7 @@ export const auditIntelligenceByWorkspace: Record<string, AuditIntelligenceStack
         ...auroraCrawlerEvaluation.sourceStatus
       },
       {
-        source: "screaming-frog",
-        label: "Screaming Frog",
-        status: "Import Ready",
-        coverageScore: 72,
-        lastSyncedAt: "2026-05-27",
-        recordsAvailable: 2100,
-        primaryUse: "Deep technical crawl import"
+        ...auroraScreamingFrogEvaluation.sourceStatus
       },
       {
         source: "gsc",
@@ -737,28 +743,7 @@ export const auditIntelligenceByWorkspace: Record<string, AuditIntelligenceStack
     ],
     technicalChecks: [
       ...auroraCrawlerEvaluation.ruleChecks,
-      {
-        id: "tc-aurora-screaming-frog-meta",
-        category: "content",
-        label: "Duplicate meta descriptions",
-        description: "Program and scholarship pages sharing near-identical descriptions",
-        severity: "medium",
-        affectedUrls: 28,
-        passedUrls: 814,
-        failedUrls: 28,
-        source: "screaming-frog"
-      },
-      {
-        id: "tc-aurora-screaming-frog-links",
-        category: "internal-linking",
-        label: "Broken internal links",
-        description: "Internal links returning 4xx status codes",
-        severity: "high",
-        affectedUrls: 19,
-        passedUrls: 823,
-        failedUrls: 19,
-        source: "screaming-frog"
-      }
+      ...auroraScreamingFrogEvaluation.ruleChecks
     ],
     searchPerformance: [
       { id: "sp-aurora-impressions", source: "gsc", label: "Search impressions", value: 134000, delta: 34000, category: "impressions" },
@@ -790,7 +775,7 @@ export const auditIntelligenceByWorkspace: Record<string, AuditIntelligenceStack
 
 export const currentSession: RankFlowSession = {
   activeWorkspaceId: "aurora-education",
-  visibleModules: ["dashboard", "own-crawler", "ai-brain", "audit-intelligence", "growth-cycle", "scan-history", "on-page-audit", "ai-suggestions", "local-visibility", "keywords", "workbook", "reports"],
+  visibleModules: ["dashboard", "own-crawler", "screaming-frog", "ai-brain", "audit-intelligence", "growth-cycle", "scan-history", "on-page-audit", "ai-suggestions", "local-visibility", "keywords", "workbook", "reports"],
   user: {
     id: "user-maya-hod",
     email: "maya.hod@rankflow.example",
@@ -801,7 +786,7 @@ export const currentSession: RankFlowSession = {
       {
         workspaceId: "aurora-education",
         role: "manager",
-        modulesEnabled: ["dashboard", "own-crawler", "ai-brain", "audit-intelligence", "growth-cycle", "scan-history", "on-page-audit", "ai-suggestions", "local-visibility", "keywords", "workbook", "reports"],
+        modulesEnabled: ["dashboard", "own-crawler", "screaming-frog", "ai-brain", "audit-intelligence", "growth-cycle", "scan-history", "on-page-audit", "ai-suggestions", "local-visibility", "keywords", "workbook", "reports"],
         canAssignTasks: true,
         suggestionAccess: "full",
         canGenerateReports: true,
@@ -812,7 +797,7 @@ export const currentSession: RankFlowSession = {
       {
         workspaceId: "nimbus-health",
         role: "manager",
-        modulesEnabled: ["dashboard", "own-crawler", "ai-brain", "audit-intelligence", "growth-cycle", "scan-history", "on-page-audit", "ai-suggestions", "local-visibility", "keywords", "workbook", "reports"],
+        modulesEnabled: ["dashboard", "own-crawler", "screaming-frog", "ai-brain", "audit-intelligence", "growth-cycle", "scan-history", "on-page-audit", "ai-suggestions", "local-visibility", "keywords", "workbook", "reports"],
         canAssignTasks: true,
         suggestionAccess: "full",
         canGenerateReports: true,

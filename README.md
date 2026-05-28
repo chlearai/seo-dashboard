@@ -40,6 +40,7 @@ npm run dev:frontend
 - `GET /api/workspaces`
 - `GET /api/workspaces/:id`
 - `GET /api/workspaces/:id/own-crawler`
+- `GET /api/workspaces/:id/screaming-frog`
 - `GET /api/workspaces/:id/ai-brain`
 - `GET /api/workspaces/:id/audit-intelligence`
 - `GET /api/workspaces/:id/growth-cycles`
@@ -71,6 +72,21 @@ The same pattern is available for Google Analytics 4:
 - `RANKFLOW_GA4_LIVE_MODE=1`
 - `RANKFLOW_GA4_PROPERTY_ID=123456789`
 - `RANKFLOW_GA4_ACCESS_TOKEN=...`
+
+Authority and reasoning connectors use the same env-backed snapshot pattern:
+
+- `RANKFLOW_DATAFORSEO_LIVE_MODE=1`
+- `RANKFLOW_DATAFORSEO_SNAPSHOT_URL=...`
+- `RANKFLOW_DATAFORSEO_ACCESS_TOKEN=...`
+- `RANKFLOW_AHREFS_LIVE_MODE=1`
+- `RANKFLOW_AHREFS_SNAPSHOT_URL=...`
+- `RANKFLOW_AHREFS_ACCESS_TOKEN=...`
+- `RANKFLOW_SEMRUSH_LIVE_MODE=1`
+- `RANKFLOW_SEMRUSH_SNAPSHOT_URL=...`
+- `RANKFLOW_SEMRUSH_ACCESS_TOKEN=...`
+- `RANKFLOW_CLAUDE_BRAIN_LIVE_MODE=1`
+- `RANKFLOW_CLAUDE_BRAIN_SNAPSHOT_URL=...`
+- `RANKFLOW_CLAUDE_BRAIN_ACCESS_TOKEN=...`
 
 ## Database
 

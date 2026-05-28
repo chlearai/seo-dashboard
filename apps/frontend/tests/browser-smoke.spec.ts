@@ -83,6 +83,14 @@ test("own crawler route renders rule engine evidence", async ({ page }) => {
   await expect(page.getByText("URL-level issues")).toBeVisible();
 });
 
+test("screaming frog route renders imported crawl evidence", async ({ page }) => {
+  await page.goto("/workspaces/aurora-education/screaming-frog");
+  await expect(page.getByRole("heading", { name: /Aurora Education Group Screaming Frog import/i })).toBeVisible();
+  await expect(page.getByRole("main").locator(".eyebrow").filter({ hasText: "Screaming Frog" })).toBeVisible();
+  await expect(page.getByText("Import Ready")).toBeVisible();
+  await expect(page.getByText("URL-level issues")).toBeVisible();
+});
+
 test("AI brain route renders approval gated system intelligence", async ({ page }) => {
   await page.goto("/workspaces/aurora-education/ai-brain");
   await expect(page.getByRole("heading", { name: /Aurora Education Group AI brain/i })).toBeVisible();
@@ -97,9 +105,9 @@ test("audit intelligence route renders hybrid evidence stack", async ({ page }) 
   await page.goto("/workspaces/aurora-education/audit-intelligence");
   await expect(page.getByRole("heading", { name: /Aurora Education Group audit intelligence/i })).toBeVisible();
   await expect(page.getByText("Own crawler", { exact: true })).toBeVisible();
-  await expect(page.getByText("Screaming Frog", { exact: true })).toBeVisible();
+  await expect(page.getByRole("main").locator(".source-card strong").filter({ hasText: "Screaming Frog" })).toBeVisible();
   await expect(page.getByText("Google Search Console", { exact: true })).toBeVisible();
   await expect(page.getByText("Claude SEO Brain", { exact: true }).first()).toBeVisible();
-  await expect(page.getByText("Missing titles")).toBeVisible();
+  await expect(page.getByText("Missing titles", { exact: true }).first()).toBeVisible();
   await expect(page.getByText("Referring domains")).toBeVisible();
 });
