@@ -34,6 +34,12 @@ import {
   type GoogleSearchConsoleConnector,
   type GoogleSearchConsoleSnapshot
 } from "../connectors/google-search-console";
+import {
+  createGoogleAnalytics4Connector,
+  createGoogleAnalytics4LiveConfigFromEnv,
+  type GoogleAnalytics4Connector,
+  type GoogleAnalytics4Snapshot
+} from "../connectors/google-analytics-4";
 
 export interface RankFlowRepository {
   listWorkspaces(): Promise<Workspace[]>;
@@ -57,6 +63,7 @@ export interface RankFlowRepository {
 
 export interface FixtureRankFlowRepositoryOptions {
   googleSearchConsoleConnector?: GoogleSearchConsoleConnector;
+  googleAnalytics4Connector?: GoogleAnalytics4Connector;
 }
 
 function mergeGoogleSearchConsoleSnapshot(
@@ -79,12 +86,35 @@ function mergeGoogleSearchConsoleSnapshot(
   };
 }
 
+function mergeGoogleAnalytics4Snapshot(
+  stack: AuditIntelligenceStack,
+  snapshot: GoogleAnalytics4Snapshot | null
+): AuditIntelligenceStack {
+  if (!snapshot) {
+    return stack;
+  }
+
+  return {
+    ...stack,
+    sourceStatuses: stack.sourceStatuses.map((source) =>
+      source.source === "ga4" ? snapshot.sourceStatus : source
+    ),
+    searchPerformance: [
+      ...stack.searchPerformance.filter((signal) => signal.source !== "ga4"),
+      ...snapshot.searchPerformance
+    ].sort((a, b) => a.label.localeCompare(b.label))
+  };
+}
+
 export class FixtureRankFlowRepository implements RankFlowRepository {
   private readonly googleSearchConsoleConnector: GoogleSearchConsoleConnector;
+  private readonly googleAnalytics4Connector: GoogleAnalytics4Connector;
 
   constructor(options: FixtureRankFlowRepositoryOptions = {}) {
     this.googleSearchConsoleConnector =
       options.googleSearchConsoleConnector ?? createGoogleSearchConsoleConnector(createGoogleSearchConsoleLiveConfigFromEnv());
+    this.googleAnalytics4Connector =
+      options.googleAnalytics4Connector ?? createGoogleAnalytics4Connector(createGoogleAnalytics4LiveConfigFromEnv());
   }
 
   async listWorkspaces() {
@@ -158,8 +188,12 @@ export class FixtureRankFlowRepository implements RankFlowRepository {
     }
 
     try {
-      const liveSnapshot = await this.googleSearchConsoleConnector.getSnapshot(workspaceId);
-      return mergeGoogleSearchConsoleSnapshot(stack, liveSnapshot);
+      const [gscSnapshot, ga4Snapshot] = await Promise.all([
+        this.googleSearchConsoleConnector.getSnapshot(workspaceId),
+        this.googleAnalytics4Connector.getSnapshot(workspaceId)
+      ]);
+
+      return mergeGoogleAnalytics4Snapshot(mergeGoogleSearchConsoleSnapshot(stack, gscSnapshot), ga4Snapshot);
     } catch {
       return stack;
     }

@@ -65,6 +65,12 @@ The backend can merge live Google Search Console data into the audit intelligenc
 
 If live mode is disabled or the connector fails, the backend falls back to the fixture-backed audit stack.
 
+The same pattern is available for Google Analytics 4:
+
+- `RANKFLOW_GA4_LIVE_MODE=1`
+- `RANKFLOW_GA4_PROPERTY_ID=123456789`
+- `RANKFLOW_GA4_ACCESS_TOKEN=...`
+
 ## Database
 
 The initial Supabase/Postgres schema lives in:

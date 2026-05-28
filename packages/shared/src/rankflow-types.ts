@@ -483,7 +483,7 @@ export interface SearchPerformanceSignal {
   label: string;
   value: number;
   delta: number;
-  category: "impressions" | "clicks" | "ctr" | "sessions" | "leads" | "conversions";
+  category: "impressions" | "clicks" | "ctr" | "sessions" | "users" | "referral" | "leads" | "conversions";
 }
 
 export interface AuthoritySignal {
