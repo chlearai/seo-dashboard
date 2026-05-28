@@ -10,6 +10,7 @@ import {
   getLocalVisibilitySummary,
   getOrganicGrowthDelta,
   getReportReadinessSummary,
+  getWorkspaceLocaleSummary,
   getSuggestionInboxSummary,
   groupTasksByStatus,
   type ActionItem,
@@ -395,6 +396,14 @@ export function KeywordsModule({
   workspace: Workspace;
 }) {
   const summary = getKeywordSummary(keywords);
+  const intentCounts = keywords.reduce(
+    (counts, keyword) => ({
+      ...counts,
+      [keyword.intent]: (counts[keyword.intent] ?? 0) + 1
+    }),
+    {} as Record<KeywordRanking["intent"], number>
+  );
+  const serpFeatures = Array.from(new Set(keywords.flatMap((keyword) => keyword.serpFeatures))).slice(0, 6);
 
   return (
     <main className="page">
@@ -413,6 +422,24 @@ export function KeywordsModule({
         <MetricCard label="Top 20" value={summary.top20} detail="Near first page" />
         <MetricCard label="Improved" value={summary.improved} detail="Moved up since previous" />
         <MetricCard label="Average Position" value={summary.averagePosition} detail="Across tracked terms" />
+      </section>
+
+      <section className="panel">
+        <div className="card-row">
+          <div>
+            <p className="eyebrow">Topic intelligence</p>
+            <h2>Intent mix and SERP feature coverage</h2>
+          </div>
+          <span className="small-label">{workspace.primaryDomain}</span>
+        </div>
+        <dl className="metric-list">
+          <div><dt>Informational</dt><dd>{intentCounts.Informational ?? 0}</dd></div>
+          <div><dt>Commercial</dt><dd>{intentCounts.Commercial ?? 0}</dd></div>
+          <div><dt>Transactional</dt><dd>{intentCounts.Transactional ?? 0}</dd></div>
+          <div><dt>Navigational</dt><dd>{intentCounts.Navigational ?? 0}</dd></div>
+          <div><dt>Local</dt><dd>{intentCounts.Local ?? 0}</dd></div>
+          <div><dt>SERP features</dt><dd>{serpFeatures.join(", ") || "None"}</dd></div>
+        </dl>
       </section>
 
       <section className="table-panel">
@@ -464,13 +491,16 @@ export function ReportsModule({
   workspace: Workspace;
 }) {
   const summary = getReportReadinessSummary(reports);
+  const readyToPublish = reports.filter((report) => report.readinessScore >= 90).length;
+  const scheduled = reports.filter((report) => report.status === "Scheduled").length;
+  const clientVisible = reports.filter((report) => report.clientVisible).length;
 
   return (
     <main className="page">
       <PageHeader
         eyebrow="Reporting System"
         title={`${workspace.clientName} report readiness`}
-        description="Live reporting pipeline for scheduled SEO reports, client-visible progress, manager ownership, and publication readiness."
+        description="Client-grade reporting pipeline for scheduled SEO reports, comparison windows, approval flow, and publication readiness."
         actionHref={`/client-portal/${workspace.id}`}
         actionLabel="Preview client portal"
       />
@@ -480,7 +510,26 @@ export function ReportsModule({
         <MetricCard label="Published" value={summary.published} detail="Client-visible reports" />
         <MetricCard label="Needs Review" value={summary.needsReview} detail="Awaiting manager/HOD sign-off" />
         <MetricCard label="Drafts" value={summary.drafts} detail="Still being assembled" />
+        <MetricCard label="Scheduled" value={scheduled} detail="Queued for delivery" />
+        <MetricCard label="Ready to Publish" value={readyToPublish} detail="90+ readiness score" />
         <MetricCard label="Avg Readiness" value={`${summary.averageReadiness}%`} detail="Section completion" />
+        <MetricCard label="Client Visible" value={clientVisible} detail="Already exposed externally" />
+      </section>
+
+      <section className="panel">
+        <div className="card-row">
+          <div>
+            <p className="eyebrow">Publication control</p>
+            <h2>Reporting standard</h2>
+          </div>
+          <span className="small-label">{workspace.primaryDomain}</span>
+        </div>
+        <dl className="metric-list">
+          <div><dt>Owner</dt><dd>{workspace.manager}</dd></div>
+          <div><dt>Audience</dt><dd>Client and internal</dd></div>
+          <div><dt>Comparison window</dt><dd>Weekly, monthly, quarterly</dd></div>
+          <div><dt>Export channels</dt><dd>PDF, CSV, share-link</dd></div>
+        </dl>
       </section>
 
       <section className="module-list">
@@ -494,11 +543,12 @@ export function ReportsModule({
               <ToneBadge label={report.status} tone={report.status === "Draft" ? "medium" : "success"} />
             </div>
             <p className="muted">
-              Due {report.dueDate}. {report.sectionsReady} of {report.totalSections} report sections are ready.
+              Due {report.dueDate}. {report.sectionsReady} of {report.totalSections} report sections are ready.{" "}
+              {report.clientVisible ? "Client visible." : "Internal until published."}
             </p>
             <p>
               <ScorePill score={report.readinessScore} />{" "}
-              <span className="muted">{report.clientVisible ? "Visible in client portal" : "Internal until published"}</span>
+              <span className="muted">Updated {report.lastUpdated}</span>
             </p>
           </article>
         ))}
@@ -526,6 +576,7 @@ export function OrganicGrowthCycleModule({
   const growthDelta = baseline && latest ? getOrganicGrowthDelta(baseline, latest) : null;
   const actionSummary = getActionIntelligenceSummary(actions);
   const expertSummary = getExpertEfficiencySummary(experts);
+  const locale = getWorkspaceLocaleSummary(workspace);
   const stages = ["Audit", "Analyse", "Act", "Report", "Re-audit"];
 
   return (
@@ -533,10 +584,19 @@ export function OrganicGrowthCycleModule({
       <PageHeader
         eyebrow="Organic Growth Operating System"
         title={`${workspace.clientName} organic growth cycle`}
-        description="Continuous audit, analysis, action, reporting, and re-audit control for SEO, AEO, GEO, local visibility, authority, traffic, and organic leads."
+        description={`${locale.market} market operating loop for audit, analysis, action, reporting, and re-audit across SEO, AEO, GEO, local visibility, authority, traffic, and leads.`}
         actionHref={`/workspaces/${workspace.id}/reports`}
         actionLabel="Open reports"
       />
+
+      <section className="summary-grid">
+        <MetricCard label="Actions Created" value={latestCycle?.actionsCreated ?? 0} detail="Current cycle backlog" />
+        <MetricCard label="Actions Completed" value={latestCycle?.actionsCompleted ?? 0} detail="Closed with proof" />
+        <MetricCard label="Actions Overdue" value={latestCycle?.actionsOverdue ?? 0} detail="Needs escalation" />
+        <MetricCard label="Reports Published" value={latestCycle?.reportsPublished ?? 0} detail="Cycle outputs" />
+        <MetricCard label="Next Audit" value={latestCycle?.nextAuditDue ?? "TBD"} detail="Re-audit cadence" />
+        <MetricCard label="Team Impact" value={expertSummary.impactDelivered} detail="Delivered by the team" />
+      </section>
 
       <section className="cycle-stage-grid" aria-label="Audit analyse act report cycle">
         {stages.map((stage) => (
@@ -568,6 +628,9 @@ export function OrganicGrowthCycleModule({
             <div><dt>Organic CTR</dt><dd>{latest?.organicCtr ?? 0}%</dd></div>
             <div><dt>Average position</dt><dd>{latest?.averagePosition ?? 0}</dd></div>
           </dl>
+          <p className="muted">
+            Baseline: {baseline?.measuredAt ?? "n/a"} · Latest: {latest?.measuredAt ?? "n/a"}
+          </p>
         </div>
 
         <div className="panel">
@@ -601,6 +664,7 @@ export function OrganicGrowthCycleModule({
               <th>Mode</th>
               <th>Status</th>
               <th>Evidence</th>
+              <th>Report</th>
               <th>Impact</th>
               <th>Due</th>
             </tr>
@@ -619,6 +683,7 @@ export function OrganicGrowthCycleModule({
                   <td>{action.executionMode === "inside-rankflow" ? "Inside RankFlow" : "Outside RankFlow"}</td>
                   <td><ToneBadge label={action.status} tone={action.status === "Blocked" ? "critical" : "success"} /></td>
                   <td><span className="evidence-chip">{evidenceStatus}</span></td>
+                  <td>{action.clientReportContribution ? "Included" : "Excluded"}</td>
                   <td>{action.impactScore}</td>
                   <td>{action.dueDate}</td>
                 </tr>
@@ -646,6 +711,7 @@ export function OrganicGrowthCycleModule({
                 <div><dt>Assigned</dt><dd>{expert.assignedActions}</dd></div>
                 <div><dt>Completed</dt><dd>{expert.completedActions}</dd></div>
                 <div><dt>Overdue</dt><dd>{expert.overdueActions}</dd></div>
+                <div><dt>Avg days</dt><dd>{expert.averageCompletionDays}</dd></div>
                 <div><dt>Evidence approval</dt><dd>{expert.evidenceApprovalRate}%</dd></div>
                 <div><dt>Impact delivered</dt><dd>{expert.impactDelivered}</dd></div>
                 <div><dt>Report contribution</dt><dd>{expert.clientReportContributions}</dd></div>
@@ -792,6 +858,24 @@ export function AuditIntelligenceModule({
         <MetricCard label="Claude Ready" value={summary.claudeReady ? "Yes" : "No"} detail={stack.claudeBrain.promptVersion} />
       </section>
 
+      <section className="panel">
+        <div className="card-row">
+          <div>
+            <p className="eyebrow">Evidence standards</p>
+            <h2>Source freshness and coverage</h2>
+          </div>
+          <span className="small-label">{workspace.primaryDomain}</span>
+        </div>
+        <dl className="metric-list">
+          <div><dt>Connected</dt><dd>{summary.connectedSources}</dd></div>
+          <div><dt>Needs setup</dt><dd>{summary.needsSetup}</dd></div>
+          <div><dt>Technical checks</dt><dd>{stack.technicalChecks.length}</dd></div>
+          <div><dt>Performance signals</dt><dd>{stack.searchPerformance.length}</dd></div>
+          <div><dt>Authority signals</dt><dd>{stack.authoritySignals.length}</dd></div>
+          <div><dt>Brain approval</dt><dd>{stack.claudeBrain.requiresHumanApproval ? "Required" : "Not required"}</dd></div>
+        </dl>
+      </section>
+
       <section className="source-grid">
         {stack.sourceStatuses.map((source) => (
           <article className="source-card" key={source.source}>
@@ -902,6 +986,7 @@ export function LocalVisibilityModule({
   workspace: Workspace;
 }) {
   const summary = getLocalVisibilitySummary(localVisibility);
+  const locale = getWorkspaceLocaleSummary(workspace);
 
   return (
     <main className="page">
@@ -920,6 +1005,22 @@ export function LocalVisibilityModule({
         <MetricCard label="Unanswered Reviews" value={summary.unansweredReviews} detail="Reputation follow-up needed" />
         <MetricCard label="Maps Visibility" value={`${summary.mapsVisibilityScore}%`} detail="Local pack and map coverage" />
         <MetricCard label="Local Pack" value={`#${localVisibility.gbp.localPackPosition}`} detail="Best tracked local position" />
+      </section>
+
+      <section className="panel">
+        <div className="card-row">
+          <div>
+            <p className="eyebrow">International market</p>
+            <h2>Locale and search footprint</h2>
+          </div>
+          <span className="small-label">{locale.market} · {locale.timeZone}</span>
+        </div>
+        <dl className="metric-list">
+          <div><dt>Country</dt><dd>{locale.market}</dd></div>
+          <div><dt>Language</dt><dd>{locale.language}</dd></div>
+          <div><dt>Currency</dt><dd>{locale.currency}</dd></div>
+          <div><dt>Domain</dt><dd>{workspace.primaryDomain}</dd></div>
+        </dl>
       </section>
 
       <section className="visibility-grid">

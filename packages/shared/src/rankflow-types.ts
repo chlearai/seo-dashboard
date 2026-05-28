@@ -260,6 +260,14 @@ export interface LocalVisibilitySummary {
   mapsVisibilityScore: number;
 }
 
+export interface WorkspaceLocaleProfile {
+  region: string;
+  country: string;
+  language: string;
+  currency: string;
+  timeZone: string;
+}
+
 export type CrawlerPagePriority = "core" | "important" | "supporting";
 
 export type CrawlerSource = "own-crawler" | "screaming-frog";
@@ -650,6 +658,7 @@ export interface Workspace {
   id: string;
   clientName: string;
   primaryDomain: string;
+  locale: WorkspaceLocaleProfile;
   industry: string;
   manager: string;
   teamSize: number;

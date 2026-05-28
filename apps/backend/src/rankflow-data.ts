@@ -814,6 +814,13 @@ export const workspaces: Workspace[] = [
     id: "aurora-education",
     clientName: "Aurora Education Group",
     primaryDomain: "aurora.edu",
+    locale: {
+      region: "South Asia",
+      country: "India",
+      language: "en-IN",
+      currency: "INR",
+      timeZone: "Asia/Kolkata"
+    },
     industry: "Education",
     manager: "Maya Iyer",
     teamSize: 5,
@@ -912,6 +919,13 @@ export const workspaces: Workspace[] = [
     id: "nimbus-health",
     clientName: "Nimbus Health Clinics",
     primaryDomain: "nimbushealth.com",
+    locale: {
+      region: "South Asia",
+      country: "India",
+      language: "en-IN",
+      currency: "INR",
+      timeZone: "Asia/Kolkata"
+    },
     industry: "Healthcare",
     manager: "Kabir Sen",
     teamSize: 4,
@@ -983,6 +997,13 @@ export const workspaces: Workspace[] = [
     id: "atlas-commerce",
     clientName: "Atlas Commerce",
     primaryDomain: "atlascommerce.com",
+    locale: {
+      region: "North America",
+      country: "United States",
+      language: "en-US",
+      currency: "USD",
+      timeZone: "America/New_York"
+    },
     industry: "eCommerce",
     manager: "Nisha Kapoor",
     teamSize: 6,
@@ -1041,6 +1062,13 @@ export const workspaces: Workspace[] = [
     id: "vertex-saas",
     clientName: "VertexOps SaaS",
     primaryDomain: "vertexops.com",
+    locale: {
+      region: "North America",
+      country: "United States",
+      language: "en-US",
+      currency: "USD",
+      timeZone: "America/Los_Angeles"
+    },
     industry: "SaaS",
     manager: "Aarav Shah",
     teamSize: 3,

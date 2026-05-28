@@ -67,7 +67,7 @@ test("growth cycle route renders audit analyse act report loop", async ({ page }
   await expect(page.getByText("Audit", { exact: true })).toBeVisible();
   await expect(page.getByText("Analyse", { exact: true })).toBeVisible();
   await expect(page.getByText("Act", { exact: true })).toBeVisible();
-  await expect(page.getByText("Report", { exact: true })).toBeVisible();
+  await expect(page.getByLabel("Audit analyse act report cycle").getByText("Report", { exact: true })).toBeVisible();
   await expect(page.getByText("Re-audit", { exact: true })).toBeVisible();
   await expect(page.getByText("Organic Leads", { exact: true })).toBeVisible();
   await expect(page.getByText("Add scholarship services to Google Business Profile")).toBeVisible();

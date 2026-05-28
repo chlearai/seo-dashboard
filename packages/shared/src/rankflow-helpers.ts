@@ -143,6 +143,34 @@ export function getLocalVisibilitySummary(profile: LocalVisibilityProfile): Loca
   };
 }
 
+export interface WorkspaceLocaleSummary {
+  market: string;
+  language: string;
+  currency: string;
+  timeZone: string;
+  localeTag: string;
+}
+
+function formatLanguage(locale: string, country: string) {
+  if (locale === "en-US") return "English (US)";
+  if (locale === "en-IN") return "English (India)";
+  if (locale === "en-GB") return "English (UK)";
+
+  const [languageCode] = locale.split("-");
+  const language = languageCode === "en" ? "English" : languageCode.toUpperCase();
+  return `${language} (${country})`;
+}
+
+export function getWorkspaceLocaleSummary(workspace: Workspace): WorkspaceLocaleSummary {
+  return {
+    market: workspace.locale.country,
+    language: formatLanguage(workspace.locale.language, workspace.locale.country),
+    currency: workspace.locale.currency,
+    timeZone: workspace.locale.timeZone,
+    localeTag: workspace.locale.language
+  };
+}
+
 export function getOrganicGrowthDelta(
   baseline: OrganicGrowthMetricSnapshot,
   latest: OrganicGrowthMetricSnapshot

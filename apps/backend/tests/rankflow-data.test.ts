@@ -36,6 +36,7 @@ describe("rankflow domain data", () => {
 
   it("finds known workspaces and returns undefined for unknown ones", () => {
     expect(getWorkspaceById("aurora-education")?.clientName).toBe("Aurora Education Group");
+    expect(getWorkspaceById("aurora-education")?.locale.country).toBe("India");
     expect(getWorkspaceById("missing-workspace")).toBeUndefined();
   });
 });

@@ -1,19 +1,29 @@
 import Link from "next/link";
 import { Delta, MetricCard, PageHeader, ScorePill, ToneBadge } from "@/components/ui";
-import { getLatestScan, type Workspace } from "@rankflow/shared";
+import { getLatestScan, getWorkspaceLocaleSummary, type Workspace } from "@rankflow/shared";
 
 export function WorkspaceDetail({ workspace }: { workspace: Workspace }) {
   const scan = getLatestScan(workspace);
+  const locale = getWorkspaceLocaleSummary(workspace);
 
   return (
     <main className="page">
       <PageHeader
-        eyebrow={`${workspace.industry} workspace`}
+        eyebrow={`${workspace.industry} workspace · ${workspace.locale.country}`}
         title={workspace.clientName}
-        description="Drill into scan history, on-page category health, AI suggestions, and the workbook queue for this account."
+        description={`${workspace.primaryDomain} · ${workspace.locale.region} market · ${locale.language}. Drill into scan history, on-page category health, AI suggestions, and the workbook queue for this account.`}
         actionHref={`/client-portal/${workspace.id}`}
         actionLabel="Preview client portal"
       />
+
+      <section className="summary-grid">
+        <MetricCard label="Market" value={locale.market} detail={locale.timeZone} />
+        <MetricCard label="Language" value={locale.language} detail={`Currency ${locale.currency}`} />
+        <MetricCard label="Team Size" value={workspace.teamSize} detail="Core delivery capacity" />
+        <MetricCard label="Manager" value={workspace.manager} detail="Workspace owner" />
+        <MetricCard label="Domain" value={workspace.primaryDomain} detail="Primary organic property" />
+        <MetricCard label="Next Report" value={workspace.nextReportDue} detail="Client delivery cadence" />
+      </section>
 
       <section className="summary-grid">
         <MetricCard label="Composite Score" value={workspace.scores.composite} detail="Current SEO score" />
@@ -25,6 +35,19 @@ export function WorkspaceDetail({ workspace }: { workspace: Workspace }) {
       </section>
 
       <section className="workspace-grid">
+        <div className="panel">
+          <p className="eyebrow">Operating profile</p>
+          <h2>International delivery context</h2>
+          <dl className="metric-list">
+            <div><dt>Region</dt><dd>{workspace.locale.region}</dd></div>
+            <div><dt>Country</dt><dd>{workspace.locale.country}</dd></div>
+            <div><dt>Language</dt><dd>{workspace.locale.language}</dd></div>
+            <div><dt>Currency</dt><dd>{workspace.locale.currency}</dd></div>
+            <div><dt>Timezone</dt><dd>{workspace.locale.timeZone}</dd></div>
+            <div><dt>Domain</dt><dd>{workspace.primaryDomain}</dd></div>
+          </dl>
+        </div>
+
         <div className="panel">
           <p className="eyebrow">Scan intelligence</p>
           <h2>Latest scan snapshot</h2>
@@ -55,51 +78,51 @@ export function WorkspaceDetail({ workspace }: { workspace: Workspace }) {
       <section className="module-grid" aria-label="Workspace modules">
         <Link className="module-card" href={`/workspaces/${workspace.id}/own-crawler`}>
           <strong>Own Crawler</strong>
-          <span>Deterministic technical rule engine and crawl evidence</span>
+          <span>Deterministic rule layer for titles, canonicals, indexability, links, schema, and speed</span>
         </Link>
         <Link className="module-card" href={`/workspaces/${workspace.id}/screaming-frog`}>
           <strong>Screaming Frog</strong>
-          <span>Imported deep crawl coverage with the same rule engine</span>
+          <span>Imported deep crawl coverage with the same rule layer and evidence shape</span>
         </Link>
         <Link className="module-card" href={`/workspaces/${workspace.id}/scans`}>
           <strong>Scan History</strong>
-          <span>Versioned crawl snapshots and score comparison</span>
+          <span>Versioned crawl snapshots, deltas, and regression evidence</span>
         </Link>
         <Link className="module-card" href={`/workspaces/${workspace.id}/growth-cycle`}>
           <strong>Growth Cycle</strong>
-          <span>Audit, analyse, act, report, and re-audit progress</span>
+          <span>Audit, analyse, act, report, and re-audit with accountability and impact tracking</span>
         </Link>
         <Link className="module-card" href={`/workspaces/${workspace.id}/ai-brain`}>
           <strong>AI Brain</strong>
-          <span>System intelligence for diagnosis, actions, risk, and narratives</span>
+          <span>Interpretation layer for diagnosis, prioritization, risk, and report narratives</span>
         </Link>
         <Link className="module-card" href={`/workspaces/${workspace.id}/audit-intelligence`}>
           <strong>Audit Intelligence</strong>
-          <span>Crawler, imports, analytics, authority data, and Claude SEO Brain</span>
+          <span>Evidence control center for crawler, analytics, authority data, and Claude reasoning</span>
         </Link>
         <Link className="module-card" href={`/workspaces/${workspace.id}/audit`}>
           <strong>On-Page Audit</strong>
-          <span>Category health and failed checks by severity</span>
+          <span>Category health, failed checks, and prioritized fixes</span>
         </Link>
         <Link className="module-card" href={`/workspaces/${workspace.id}/suggestions`}>
           <strong>AI Suggestions</strong>
-          <span>Source-backed fixes with workflow status</span>
+          <span>Source-backed fixes with workflow state and impact estimation</span>
         </Link>
         <Link className="module-card" href={`/workspaces/${workspace.id}/local-visibility`}>
           <strong>Local + AI Search</strong>
-          <span>GBP optimization, local pack, AEO, and GEO readiness</span>
+          <span>GBP, local pack, AEO, GEO, and regional search readiness</span>
         </Link>
         <Link className="module-card" href={`/workspaces/${workspace.id}/workbook`}>
           <strong>SEO Workbook</strong>
-          <span>Kanban execution queue with owners and evidence</span>
+          <span>Execution queue with owners, evidence, and completion mode</span>
         </Link>
         <Link className="module-card" href={`/workspaces/${workspace.id}/keywords`}>
           <strong>Keywords</strong>
-          <span>Rank movement, mapped pages, intent, and SERP features</span>
+          <span>Rank movement, intent, mapped pages, and SERP feature ownership</span>
         </Link>
         <Link className="module-card" href={`/workspaces/${workspace.id}/reports`}>
           <strong>Reports</strong>
-          <span>Readiness, publication status, and client visibility</span>
+          <span>Readiness, publication status, exports, and client visibility</span>
         </Link>
       </section>
 
