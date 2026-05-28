@@ -63,7 +63,7 @@ const server = createServer(async (request, response) => {
   }
 
   const workspaceCollectionMatch = url.pathname.match(
-    /^\/api\/workspaces\/([^/]+)\/(scans|audit-categories|suggestions|tasks|keywords|reports)$/
+    /^\/api\/workspaces\/([^/]+)\/(scans|audit-categories|suggestions|tasks|keywords|reports|local-visibility|growth-cycles|organic-metrics|action-items|expert-efficiency|ai-brain|audit-intelligence)$/
   );
   if (workspaceCollectionMatch) {
     const [, workspaceId, collection] = workspaceCollectionMatch;
@@ -96,6 +96,41 @@ const server = createServer(async (request, response) => {
 
     if (collection === "keywords") {
       jsonResponse(response, 200, await rankFlowRepository.listKeywords(workspaceId));
+      return;
+    }
+
+    if (collection === "local-visibility") {
+      jsonResponse(response, 200, await rankFlowRepository.getLocalVisibility(workspaceId));
+      return;
+    }
+
+    if (collection === "growth-cycles") {
+      jsonResponse(response, 200, await rankFlowRepository.listGrowthCycles(workspaceId));
+      return;
+    }
+
+    if (collection === "organic-metrics") {
+      jsonResponse(response, 200, await rankFlowRepository.listOrganicMetricSnapshots(workspaceId));
+      return;
+    }
+
+    if (collection === "action-items") {
+      jsonResponse(response, 200, await rankFlowRepository.listActionItems(workspaceId));
+      return;
+    }
+
+    if (collection === "expert-efficiency") {
+      jsonResponse(response, 200, await rankFlowRepository.listExpertEfficiency(workspaceId));
+      return;
+    }
+
+    if (collection === "ai-brain") {
+      jsonResponse(response, 200, await rankFlowRepository.getAiBrain(workspaceId));
+      return;
+    }
+
+    if (collection === "audit-intelligence") {
+      jsonResponse(response, 200, await rankFlowRepository.getAuditIntelligence(workspaceId));
       return;
     }
 

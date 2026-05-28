@@ -2,14 +2,18 @@ import Link from "next/link";
 import {
   BarChart3,
   Bell,
+  BrainCircuit,
   ClipboardList,
   FileText,
+  RefreshCcwDot,
   LayoutDashboard,
   ListChecks,
+  MapPinned,
   MessageSquareText,
   PanelLeft,
   Plus,
   Search,
+  ScanSearch,
   Sparkles,
   Target,
   UserRound
@@ -19,9 +23,13 @@ import { canPerformAction, type RankFlowModule, type RankFlowSession } from "@ra
 
 const modules = [
   { id: "dashboard", label: "Dashboard", href: "/", Icon: LayoutDashboard },
+  { id: "ai-brain", label: "AI Brain", href: "/workspaces/aurora-education/ai-brain", Icon: BrainCircuit },
+  { id: "audit-intelligence", label: "Audit Intelligence", href: "/workspaces/aurora-education/audit-intelligence", Icon: ScanSearch },
+  { id: "growth-cycle", label: "Growth Cycle", href: "/workspaces/aurora-education/growth-cycle", Icon: RefreshCcwDot },
   { id: "scan-history", label: "Scan History", href: "/workspaces/aurora-education/scans", Icon: BarChart3 },
   { id: "on-page-audit", label: "On-Page Audit", href: "/workspaces/aurora-education/audit", Icon: ListChecks },
   { id: "ai-suggestions", label: "AI Suggestions", href: "/workspaces/aurora-education/suggestions", Icon: Sparkles },
+  { id: "local-visibility", label: "Local + AI Search", href: "/workspaces/aurora-education/local-visibility", Icon: MapPinned },
   { id: "keywords", label: "Keywords", href: "/workspaces/aurora-education/keywords", Icon: Target },
   { id: "workbook", label: "Workbook", href: "/workspaces/aurora-education/workbook", Icon: ClipboardList },
   { id: "reports", label: "Reports", href: "/workspaces/aurora-education/reports", Icon: FileText },

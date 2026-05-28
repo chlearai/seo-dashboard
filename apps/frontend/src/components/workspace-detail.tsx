@@ -57,6 +57,18 @@ export function WorkspaceDetail({ workspace }: { workspace: Workspace }) {
           <strong>Scan History</strong>
           <span>Versioned crawl snapshots and score comparison</span>
         </Link>
+        <Link className="module-card" href={`/workspaces/${workspace.id}/growth-cycle`}>
+          <strong>Growth Cycle</strong>
+          <span>Audit, analyse, act, report, and re-audit progress</span>
+        </Link>
+        <Link className="module-card" href={`/workspaces/${workspace.id}/ai-brain`}>
+          <strong>AI Brain</strong>
+          <span>System intelligence for diagnosis, actions, risk, and narratives</span>
+        </Link>
+        <Link className="module-card" href={`/workspaces/${workspace.id}/audit-intelligence`}>
+          <strong>Audit Intelligence</strong>
+          <span>Crawler, imports, analytics, authority data, and Claude SEO Brain</span>
+        </Link>
         <Link className="module-card" href={`/workspaces/${workspace.id}/audit`}>
           <strong>On-Page Audit</strong>
           <span>Category health and failed checks by severity</span>
@@ -64,6 +76,10 @@ export function WorkspaceDetail({ workspace }: { workspace: Workspace }) {
         <Link className="module-card" href={`/workspaces/${workspace.id}/suggestions`}>
           <strong>AI Suggestions</strong>
           <span>Source-backed fixes with workflow status</span>
+        </Link>
+        <Link className="module-card" href={`/workspaces/${workspace.id}/local-visibility`}>
+          <strong>Local + AI Search</strong>
+          <span>GBP optimization, local pack, AEO, and GEO readiness</span>
         </Link>
         <Link className="module-card" href={`/workspaces/${workspace.id}/workbook`}>
           <strong>SEO Workbook</strong>

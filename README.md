@@ -39,10 +39,17 @@ npm run dev:frontend
 - `GET /api/session`
 - `GET /api/workspaces`
 - `GET /api/workspaces/:id`
+- `GET /api/workspaces/:id/ai-brain`
+- `GET /api/workspaces/:id/audit-intelligence`
+- `GET /api/workspaces/:id/growth-cycles`
+- `GET /api/workspaces/:id/organic-metrics`
+- `GET /api/workspaces/:id/action-items`
+- `GET /api/workspaces/:id/expert-efficiency`
 - `GET /api/workspaces/:id/scans`
 - `GET /api/workspaces/:id/audit-categories`
 - `GET /api/workspaces/:id/suggestions`
 - `GET /api/workspaces/:id/tasks`
+- `GET /api/workspaces/:id/local-visibility`
 - `GET /api/workspaces/:id/keywords`
 - `GET /api/workspaces/:id/reports`
 
@@ -56,6 +63,10 @@ The initial Supabase/Postgres schema lives in:
 supabase/migrations/202605200001_rankflow_backend_foundation.sql
 supabase/migrations/202605210001_rankflow_growth_modules.sql
 supabase/migrations/202605220001_rankflow_access_control.sql
+supabase/migrations/202605280001_rankflow_local_visibility.sql
+supabase/migrations/202605280002_rankflow_growth_cycle_action_intelligence.sql
+supabase/migrations/202605280003_rankflow_ai_brain.sql
+supabase/migrations/202605280004_rankflow_audit_intelligence_stack.sql
 ```
 
 The backend currently uses a fixture repository that implements the same repository interface planned for Supabase-backed data access.

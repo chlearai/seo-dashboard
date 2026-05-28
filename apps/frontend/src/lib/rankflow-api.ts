@@ -1,8 +1,15 @@
 import type {
+  ActionItem,
+  AiBrainProfile,
   AiSuggestion,
   AuditCategory,
+  AuditIntelligenceStack,
+  ExpertEfficiency,
   HodSummary,
   KeywordRanking,
+  LocalVisibilityProfile,
+  OrganicGrowthCycle,
+  OrganicGrowthMetricSnapshot,
   RankFlowSession,
   ReportSnapshot,
   ScanSnapshot,
@@ -59,6 +66,34 @@ export async function getWorkspaceKeywords(workspaceId: string) {
 
 export async function getWorkspaceReports(workspaceId: string) {
   return fetchJson<ReportSnapshot[]>(`/api/workspaces/${workspaceId}/reports`);
+}
+
+export async function getWorkspaceLocalVisibility(workspaceId: string) {
+  return fetchJson<LocalVisibilityProfile>(`/api/workspaces/${workspaceId}/local-visibility`);
+}
+
+export async function getWorkspaceGrowthCycles(workspaceId: string) {
+  return fetchJson<OrganicGrowthCycle[]>(`/api/workspaces/${workspaceId}/growth-cycles`);
+}
+
+export async function getWorkspaceOrganicMetrics(workspaceId: string) {
+  return fetchJson<OrganicGrowthMetricSnapshot[]>(`/api/workspaces/${workspaceId}/organic-metrics`);
+}
+
+export async function getWorkspaceActionItems(workspaceId: string) {
+  return fetchJson<ActionItem[]>(`/api/workspaces/${workspaceId}/action-items`);
+}
+
+export async function getWorkspaceExpertEfficiency(workspaceId: string) {
+  return fetchJson<ExpertEfficiency[]>(`/api/workspaces/${workspaceId}/expert-efficiency`);
+}
+
+export async function getWorkspaceAiBrain(workspaceId: string) {
+  return fetchJson<AiBrainProfile>(`/api/workspaces/${workspaceId}/ai-brain`);
+}
+
+export async function getWorkspaceAuditIntelligence(workspaceId: string) {
+  return fetchJson<AuditIntelligenceStack>(`/api/workspaces/${workspaceId}/audit-intelligence`);
 }
 
 export async function getSession() {

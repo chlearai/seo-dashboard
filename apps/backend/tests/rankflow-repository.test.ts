@@ -36,6 +36,18 @@ describe("FixtureRankFlowRepository", () => {
     await expect(repository.listTasks("aurora-education")).resolves.toHaveLength(4);
     await expect(repository.listKeywords("aurora-education")).resolves.toHaveLength(4);
     await expect(repository.listReports("aurora-education")).resolves.toHaveLength(2);
+    await expect(repository.getLocalVisibility("aurora-education")).resolves.toMatchObject({
+      gbp: {
+        verificationStatus: "Verified",
+        primaryCategory: "Business School"
+      },
+      aeo: {
+        score: expect.any(Number)
+      },
+      geo: {
+        score: expect.any(Number)
+      }
+    });
   });
 
   it("returns empty collections for unknown workspaces", async () => {
@@ -45,5 +57,6 @@ describe("FixtureRankFlowRepository", () => {
     await expect(repository.listTasks("missing")).resolves.toEqual([]);
     await expect(repository.listKeywords("missing")).resolves.toEqual([]);
     await expect(repository.listReports("missing")).resolves.toEqual([]);
+    await expect(repository.getLocalVisibility("missing")).resolves.toBeUndefined();
   });
 });

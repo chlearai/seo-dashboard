@@ -51,3 +51,46 @@ test("growth module routes render keyword tracking and report readiness", async 
   await expect(page.getByText("Avg Readiness")).toBeVisible();
   await expect(page.getByText("May SEO Progress Report")).toBeVisible();
 });
+
+test("local visibility route renders GBP, AEO, and GEO intelligence", async ({ page }) => {
+  await page.goto("/workspaces/aurora-education/local-visibility");
+  await expect(page.getByRole("heading", { name: /Aurora Education Group local visibility/i })).toBeVisible();
+  await expect(page.getByText("Google Business Profile", { exact: true })).toBeVisible();
+  await expect(page.getByText("AEO Readiness", { exact: true })).toBeVisible();
+  await expect(page.getByText("GEO Visibility", { exact: true })).toBeVisible();
+  await expect(page.getByText("Scholarship service pages are missing from GBP").first()).toBeVisible();
+});
+
+test("growth cycle route renders audit analyse act report loop", async ({ page }) => {
+  await page.goto("/workspaces/aurora-education/growth-cycle");
+  await expect(page.getByRole("heading", { name: /Aurora Education Group organic growth cycle/i })).toBeVisible();
+  await expect(page.getByText("Audit", { exact: true })).toBeVisible();
+  await expect(page.getByText("Analyse", { exact: true })).toBeVisible();
+  await expect(page.getByText("Act", { exact: true })).toBeVisible();
+  await expect(page.getByText("Report", { exact: true })).toBeVisible();
+  await expect(page.getByText("Re-audit", { exact: true })).toBeVisible();
+  await expect(page.getByText("Organic Leads", { exact: true })).toBeVisible();
+  await expect(page.getByText("Add scholarship services to Google Business Profile")).toBeVisible();
+  await expect(page.getByText("SEO Expert Efficiency")).toBeVisible();
+});
+
+test("AI brain route renders approval gated system intelligence", async ({ page }) => {
+  await page.goto("/workspaces/aurora-education/ai-brain");
+  await expect(page.getByRole("heading", { name: /Aurora Education Group AI brain/i })).toBeVisible();
+  await expect(page.getByText("Brain Status")).toBeVisible();
+  await expect(page.getByText("Organic leads rose after FAQ schema and title updates")).toBeVisible();
+  await expect(page.getByText("Prioritize GEO evidence blocks on MBA pages")).toBeVisible();
+  await expect(page.getByText("Requires approval").first()).toBeVisible();
+  await expect(page.getByText("External GEO evidence work lacks approved proof")).toBeVisible();
+});
+
+test("audit intelligence route renders hybrid evidence stack", async ({ page }) => {
+  await page.goto("/workspaces/aurora-education/audit-intelligence");
+  await expect(page.getByRole("heading", { name: /Aurora Education Group audit intelligence/i })).toBeVisible();
+  await expect(page.getByText("Own crawler", { exact: true })).toBeVisible();
+  await expect(page.getByText("Screaming Frog", { exact: true })).toBeVisible();
+  await expect(page.getByText("Google Search Console", { exact: true })).toBeVisible();
+  await expect(page.getByText("Claude SEO Brain", { exact: true }).first()).toBeVisible();
+  await expect(page.getByText("Missing titles")).toBeVisible();
+  await expect(page.getByText("Referring domains")).toBeVisible();
+});

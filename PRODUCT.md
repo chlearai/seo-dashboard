@@ -21,6 +21,10 @@ RankFlow is an international SaaS operating system for SEO teams. It gives agenc
 - HOD Command Centre: all-client MIS, summary strip, risk flags, and drill-down entry points.
 - Scan Intelligence: versioned scan history, score deltas, severity counts, and comparison-ready data.
 - On-Page Audit: page-level scoring across title, metadata, headings, content, technical, image, link, schema, speed, local, AEO, and GEO categories.
+- Local + AI Search: Google Business Profile optimization, Local SEO, Maps/local pack visibility, AEO readiness, and GEO evidence coverage.
+- Organic Growth Cycle: continuous audit, analysis, action tracking, reporting, re-audit comparison, and SEO expert efficiency measurement.
+- AI Brain: approval-gated intelligence layer that diagnoses organic movement, recommends next actions, flags risks, and drafts client/report narratives from RankFlow signals.
+- Audit Intelligence Stack: hybrid evidence layer combining RankFlow crawler checks, Screaming Frog imports, GSC/GA4 performance signals, authority/rank data, and Claude SEO Brain readiness.
 - AI Suggestions: source-backed recommendations with accept, edit, reject, resubmit, and implementation tracking.
 - SEO Workbook: task CRUD, owner assignment, evidence, status, priority, and KPI attribution.
 - Client Portal: read-only white-labeled progress view.

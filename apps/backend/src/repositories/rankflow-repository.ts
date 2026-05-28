@@ -1,15 +1,33 @@
 import type {
+  ActionItem,
+  AiBrainProfile,
   AiSuggestion,
   AuditCategory,
+  AuditIntelligenceStack,
+  ExpertEfficiency,
   HodSummary,
   KeywordRanking,
+  LocalVisibilityProfile,
+  OrganicGrowthCycle,
+  OrganicGrowthMetricSnapshot,
   RankFlowSession,
   ReportSnapshot,
   ScanSnapshot,
   WorkbookTask,
   Workspace
 } from "@rankflow/shared";
-import { currentSession, getHodSummary, getWorkspaceById, workspaces } from "../rankflow-data";
+import {
+  actionItemsByWorkspace,
+  aiBrainByWorkspace,
+  auditIntelligenceByWorkspace,
+  currentSession,
+  expertEfficiencyByWorkspace,
+  getHodSummary,
+  getWorkspaceById,
+  growthCyclesByWorkspace,
+  organicMetricSnapshotsByWorkspace,
+  workspaces
+} from "../rankflow-data";
 
 export interface RankFlowRepository {
   listWorkspaces(): Promise<Workspace[]>;
@@ -22,6 +40,13 @@ export interface RankFlowRepository {
   listTasks(workspaceId: string): Promise<WorkbookTask[]>;
   listKeywords(workspaceId: string): Promise<KeywordRanking[]>;
   listReports(workspaceId: string): Promise<ReportSnapshot[]>;
+  getLocalVisibility(workspaceId: string): Promise<LocalVisibilityProfile | undefined>;
+  listGrowthCycles(workspaceId: string): Promise<OrganicGrowthCycle[]>;
+  listOrganicMetricSnapshots(workspaceId: string): Promise<OrganicGrowthMetricSnapshot[]>;
+  listActionItems(workspaceId: string): Promise<ActionItem[]>;
+  listExpertEfficiency(workspaceId: string): Promise<ExpertEfficiency[]>;
+  getAiBrain(workspaceId: string): Promise<AiBrainProfile | undefined>;
+  getAuditIntelligence(workspaceId: string): Promise<AuditIntelligenceStack | undefined>;
 }
 
 export class FixtureRankFlowRepository implements RankFlowRepository {
@@ -63,6 +88,34 @@ export class FixtureRankFlowRepository implements RankFlowRepository {
 
   async listReports(workspaceId: string) {
     return getWorkspaceById(workspaceId)?.reports ?? [];
+  }
+
+  async getLocalVisibility(workspaceId: string) {
+    return getWorkspaceById(workspaceId)?.localVisibility;
+  }
+
+  async listGrowthCycles(workspaceId: string) {
+    return growthCyclesByWorkspace[workspaceId] ?? [];
+  }
+
+  async listOrganicMetricSnapshots(workspaceId: string) {
+    return organicMetricSnapshotsByWorkspace[workspaceId] ?? [];
+  }
+
+  async listActionItems(workspaceId: string) {
+    return actionItemsByWorkspace[workspaceId] ?? [];
+  }
+
+  async listExpertEfficiency(workspaceId: string) {
+    return expertEfficiencyByWorkspace[workspaceId] ?? [];
+  }
+
+  async getAiBrain(workspaceId: string) {
+    return aiBrainByWorkspace[workspaceId];
+  }
+
+  async getAuditIntelligence(workspaceId: string) {
+    return auditIntelligenceByWorkspace[workspaceId];
   }
 }
 

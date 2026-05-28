@@ -1,7 +1,19 @@
 import type {
+  ActionIntelligenceSummary,
+  ActionItem,
+  AiBrainProfile,
+  AiBrainSummary,
   AiSuggestion,
+  AuditIntelligenceStack,
+  AuditIntelligenceSummary,
+  ExpertEfficiency,
+  ExpertEfficiencySummary,
   KeywordRanking,
   KeywordSummary,
+  LocalVisibilityProfile,
+  LocalVisibilitySummary,
+  OrganicGrowthDelta,
+  OrganicGrowthMetricSnapshot,
   RankFlowAction,
   RankFlowModule,
   RankFlowRole,
@@ -98,6 +110,106 @@ export function getReportReadinessSummary(reports: ReportSnapshot[]): ReportRead
   };
 }
 
+export function getLocalVisibilitySummary(profile: LocalVisibilityProfile): LocalVisibilitySummary {
+  const scores = [
+    { area: "GBP" as const, score: profile.gbp.score },
+    { area: "Local SEO" as const, score: profile.localSeo.score },
+    { area: "AEO" as const, score: profile.aeo.score },
+    { area: "GEO" as const, score: profile.geo.score }
+  ];
+  const weakestArea = scores.reduce((lowest, current) => (current.score < lowest.score ? current : lowest)).area;
+  const overallScore = Math.round(scores.reduce((total, current) => total + current.score, 0) / scores.length);
+
+  return {
+    overallScore,
+    weakestArea,
+    criticalActions: [
+      profile.gbp.topIssues[0],
+      profile.localSeo.topIssues[0],
+      profile.aeo.topIssues[0],
+      profile.geo.topIssues[0]
+    ].filter((issue): issue is string => Boolean(issue)),
+    gbpActionCount: profile.gbp.topIssues.length,
+    unansweredReviews: profile.gbp.unansweredReviews,
+    mapsVisibilityScore: profile.gbp.mapsVisibilityScore
+  };
+}
+
+export function getOrganicGrowthDelta(
+  baseline: OrganicGrowthMetricSnapshot,
+  latest: OrganicGrowthMetricSnapshot
+): OrganicGrowthDelta {
+  return {
+    searchImpressionsDelta: latest.searchImpressions - baseline.searchImpressions,
+    organicClicksDelta: latest.organicClicks - baseline.organicClicks,
+    organicLeadsDelta: latest.organicLeads - baseline.organicLeads,
+    aeoVisibilityDelta: latest.aeoVisibility - baseline.aeoVisibility,
+    geoVisibilityDelta: latest.geoVisibility - baseline.geoVisibility
+  };
+}
+
+export function getActionIntelligenceSummary(actions: ActionItem[]): ActionIntelligenceSummary {
+  const impactTotal = actions.reduce((sum, action) => sum + action.impactScore, 0);
+
+  return {
+    total: actions.length,
+    completed: actions.filter((action) => action.status === "Done").length,
+    inProgress: actions.filter((action) => action.status === "In Progress" || action.status === "Evidence Review")
+      .length,
+    blocked: actions.filter((action) => action.status === "Blocked").length,
+    outsideProduct: actions.filter((action) => action.executionMode === "outside-rankflow").length,
+    evidencePending: actions.filter(
+      (action) =>
+        action.status !== "Done" &&
+        action.evidenceRequired &&
+        action.evidence.some((evidence) => evidence.approvalStatus === "Pending")
+    ).length,
+    averageImpactScore: actions.length ? Math.round(impactTotal / actions.length) : 0
+  };
+}
+
+export function getExpertEfficiencySummary(experts: ExpertEfficiency[]): ExpertEfficiencySummary {
+  const teamAssigned = experts.reduce((sum, expert) => sum + expert.assignedActions, 0);
+  const teamCompleted = experts.reduce((sum, expert) => sum + expert.completedActions, 0);
+  const evidenceApprovalTotal = experts.reduce((sum, expert) => sum + expert.evidenceApprovalRate, 0);
+
+  return {
+    teamAssigned,
+    teamCompleted,
+    completionRate: teamAssigned ? Math.round((teamCompleted / teamAssigned) * 100) : 0,
+    overdue: experts.reduce((sum, expert) => sum + expert.overdueActions, 0),
+    averageEvidenceApprovalRate: experts.length ? Math.round(evidenceApprovalTotal / experts.length) : 0,
+    impactDelivered: experts.reduce((sum, expert) => sum + expert.impactDelivered, 0)
+  };
+}
+
+export function getAiBrainSummary(brain: AiBrainProfile): AiBrainSummary {
+  return {
+    status: brain.status,
+    confidenceScore: brain.confidenceScore,
+    dataCoverageScore: brain.dataCoverageScore,
+    highPriorityRecommendations: brain.recommendations.filter((recommendation) => recommendation.priority === "high")
+      .length,
+    approvalRequired: brain.recommendations.filter((recommendation) => recommendation.requiresApproval).length,
+    highRisks: brain.risks.filter((risk) => risk.severity === "high" || risk.severity === "critical").length,
+    clientNarratives: brain.narratives.filter((narrative) => narrative.audience === "client").length
+  };
+}
+
+export function getAuditIntelligenceSummary(stack: AuditIntelligenceStack): AuditIntelligenceSummary {
+  return {
+    connectedSources: stack.sourceStatuses.filter((source) => source.status === "Connected").length,
+    needsSetup: stack.sourceStatuses.filter((source) => source.status === "Needs Setup").length,
+    technicalIssues: stack.technicalChecks.reduce((sum, check) => sum + check.failedUrls, 0),
+    criticalTechnicalIssues: stack.technicalChecks
+      .filter((check) => check.severity === "critical")
+      .reduce((sum, check) => sum + check.failedUrls, 0),
+    performanceSignals: stack.searchPerformance.length,
+    authoritySignals: stack.authoritySignals.length,
+    claudeReady: stack.claudeBrain.status === "Ready" || stack.claudeBrain.status === "Needs Approval"
+  };
+}
+
 export function hasWorkspaceAccess(
   role: RankFlowRole,
   accessList: WorkspaceAccess[],
@@ -121,7 +233,19 @@ export function getVisibleModules(role: RankFlowRole, accessList: WorkspaceAcces
   if (role === "client") return ["client-portal"];
 
   if (role === "super_admin" || role === "hod") {
-    return ["dashboard", "scan-history", "on-page-audit", "ai-suggestions", "keywords", "workbook", "reports"];
+    return [
+      "dashboard",
+      "ai-brain",
+      "audit-intelligence",
+      "growth-cycle",
+      "scan-history",
+      "on-page-audit",
+      "ai-suggestions",
+      "local-visibility",
+      "keywords",
+      "workbook",
+      "reports"
+    ];
   }
 
   return Array.from(new Set(accessList.flatMap((access) => access.modulesEnabled)));
