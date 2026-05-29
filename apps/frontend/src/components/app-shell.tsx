@@ -19,24 +19,7 @@ import {
   UserRound
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
-import { canPerformAction, type RankFlowModule, type RankFlowSession } from "@rankflow/shared";
-
-const modules = [
-  { id: "dashboard", label: "Dashboard", href: "/dashboard", Icon: LayoutDashboard },
-  { id: "own-crawler", label: "Own Crawler", href: "/workspaces/aurora-education/own-crawler", Icon: Search },
-  { id: "screaming-frog", label: "Screaming Frog", href: "/workspaces/aurora-education/screaming-frog", Icon: ScanSearch },
-  { id: "ai-brain", label: "AI Brain", href: "/workspaces/aurora-education/ai-brain", Icon: BrainCircuit },
-  { id: "audit-intelligence", label: "Audit Intelligence", href: "/workspaces/aurora-education/audit-intelligence", Icon: ScanSearch },
-  { id: "growth-cycle", label: "Growth Cycle", href: "/workspaces/aurora-education/growth-cycle", Icon: RefreshCcwDot },
-  { id: "scan-history", label: "Scan History", href: "/workspaces/aurora-education/scans", Icon: BarChart3 },
-  { id: "on-page-audit", label: "On-Page Audit", href: "/workspaces/aurora-education/audit", Icon: ListChecks },
-  { id: "ai-suggestions", label: "AI Suggestions", href: "/workspaces/aurora-education/suggestions", Icon: Sparkles },
-  { id: "local-visibility", label: "Local + AI Search", href: "/workspaces/aurora-education/local-visibility", Icon: MapPinned },
-  { id: "keywords", label: "Keywords", href: "/workspaces/aurora-education/keywords", Icon: Target },
-  { id: "workbook", label: "Workbook", href: "/workspaces/aurora-education/workbook", Icon: ClipboardList },
-  { id: "reports", label: "Reports", href: "/workspaces/aurora-education/reports", Icon: FileText },
-  { id: "client-portal", label: "Client Portal", href: "/client-portal/aurora-education", Icon: MessageSquareText }
-] satisfies Array<{ id: RankFlowModule; label: string; href: string; Icon: LucideIcon }>;
+import { type RankFlowModule, type RankFlowSession } from "@rankflow/shared";
 
 export function AppShell({
   children,
@@ -45,12 +28,39 @@ export function AppShell({
   children: React.ReactNode;
   session: RankFlowSession;
 }) {
-  const activeAccess = session.user.workspaceAccess.find(
-    (access) => access.workspaceId === session.activeWorkspaceId
-  );
+  const workspaceBaseHref = `/workspaces/${session.activeWorkspaceId}`;
+  const modules = [
+    { id: "dashboard", label: "Dashboard", href: "/dashboard", Icon: LayoutDashboard },
+    { id: "own-crawler", label: "Own Crawler", href: `${workspaceBaseHref}/own-crawler`, Icon: Search },
+    { id: "screaming-frog", label: "Screaming Frog", href: `${workspaceBaseHref}/screaming-frog`, Icon: ScanSearch },
+    { id: "ai-brain", label: "AI Brain", href: `${workspaceBaseHref}/ai-brain`, Icon: BrainCircuit },
+    {
+      id: "audit-intelligence",
+      label: "Audit Intelligence",
+      href: `${workspaceBaseHref}/audit-intelligence`,
+      Icon: ScanSearch
+    },
+    {
+      id: "growth-cycle",
+      label: "Growth Cycle",
+      href: `${workspaceBaseHref}/growth-cycle`,
+      Icon: RefreshCcwDot
+    },
+    { id: "scan-history", label: "Scan History", href: `${workspaceBaseHref}/scans`, Icon: BarChart3 },
+    { id: "on-page-audit", label: "On-Page Audit", href: `${workspaceBaseHref}/audit`, Icon: ListChecks },
+    { id: "ai-suggestions", label: "AI Suggestions", href: `${workspaceBaseHref}/suggestions`, Icon: Sparkles },
+    {
+      id: "local-visibility",
+      label: "Local + AI Search",
+      href: `${workspaceBaseHref}/local-visibility`,
+      Icon: MapPinned
+    },
+    { id: "keywords", label: "Keywords", href: `${workspaceBaseHref}/keywords`, Icon: Target },
+    { id: "workbook", label: "Workbook", href: `${workspaceBaseHref}/workbook`, Icon: ClipboardList },
+    { id: "reports", label: "Reports", href: `${workspaceBaseHref}/reports`, Icon: FileText },
+    { id: "client-portal", label: "Client Portal", href: `/client-portal/${session.activeWorkspaceId}`, Icon: MessageSquareText }
+  ] satisfies Array<{ id: RankFlowModule; label: string; href: string; Icon: LucideIcon }>;
   const visibleModules = modules.filter((module) => session.visibleModules.includes(module.id));
-  const canRunScan = canPerformAction(session.user.role, "run-scan", activeAccess);
-  const canAssignTask = canPerformAction(session.user.role, "assign-task", activeAccess);
 
   return (
     <div className="app-shell">
@@ -108,17 +118,17 @@ export function AppShell({
             />
           </label>
           <div className="top-actions">
-            <button className="icon-button" type="button" aria-label="Notifications">
+            <Link className="icon-button" href={`${workspaceBaseHref}/suggestions`} aria-label="Notifications">
               <Bell size={17} aria-hidden="true" />
-            </button>
-            <button className="button" type="button" disabled={!canRunScan}>
+            </Link>
+            <Link className="button" href={`${workspaceBaseHref}/scans`}>
               <BarChart3 size={16} aria-hidden="true" />
               Run Scan
-            </button>
-            <button className="button primary" type="button" disabled={!canAssignTask}>
+            </Link>
+            <Link className="button primary" href={`${workspaceBaseHref}/workbook`}>
               <Plus size={16} aria-hidden="true" />
               New Task
-            </button>
+            </Link>
           </div>
         </header>
         {children}
