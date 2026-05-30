@@ -1895,7 +1895,7 @@ export const auditIntelligenceByWorkspace: Record<string, AuditIntelligenceStack
 
 export const currentSession: RankFlowSession = {
   activeWorkspaceId: "aurora-education",
-  visibleModules: ["dashboard", "own-crawler", "screaming-frog", "ai-brain", "audit-intelligence", "growth-cycle", "scan-history", "on-page-audit", "ai-suggestions", "local-visibility", "keywords", "workbook", "reports"],
+  visibleModules: ["dashboard", "own-crawler", "screaming-frog", "ai-brain", "audit-intelligence", "growth-cycle", "scan-history", "on-page-audit", "ai-suggestions", "local-visibility", "keywords", "workbook", "reports", "re-audit"],
   user: {
     id: "user-maya-hod",
     email: "maya.hod@rankflow.example",
@@ -1906,7 +1906,7 @@ export const currentSession: RankFlowSession = {
       {
         workspaceId: "aurora-education",
         role: "manager",
-        modulesEnabled: ["dashboard", "own-crawler", "screaming-frog", "ai-brain", "audit-intelligence", "growth-cycle", "scan-history", "on-page-audit", "ai-suggestions", "local-visibility", "keywords", "workbook", "reports"],
+        modulesEnabled: ["dashboard", "own-crawler", "screaming-frog", "ai-brain", "audit-intelligence", "growth-cycle", "scan-history", "on-page-audit", "ai-suggestions", "local-visibility", "keywords", "workbook", "reports", "re-audit"],
         canAssignTasks: true,
         suggestionAccess: "full",
         canGenerateReports: true,
@@ -1917,7 +1917,7 @@ export const currentSession: RankFlowSession = {
       {
         workspaceId: "nimbus-health",
         role: "manager",
-        modulesEnabled: ["dashboard", "own-crawler", "screaming-frog", "ai-brain", "audit-intelligence", "growth-cycle", "scan-history", "on-page-audit", "ai-suggestions", "local-visibility", "keywords", "workbook", "reports"],
+        modulesEnabled: ["dashboard", "own-crawler", "screaming-frog", "ai-brain", "audit-intelligence", "growth-cycle", "scan-history", "on-page-audit", "ai-suggestions", "local-visibility", "keywords", "workbook", "reports", "re-audit"],
         canAssignTasks: true,
         suggestionAccess: "full",
         canGenerateReports: true,

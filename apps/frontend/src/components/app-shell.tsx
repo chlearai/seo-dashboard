@@ -58,7 +58,8 @@ export function AppShell({
     { id: "keywords", label: "Keywords", href: `${workspaceBaseHref}/keywords`, Icon: Target },
     { id: "workbook", label: "Workbook", href: `${workspaceBaseHref}/workbook`, Icon: ClipboardList },
     { id: "reports", label: "Reports", href: `${workspaceBaseHref}/reports`, Icon: FileText },
-    { id: "client-portal", label: "Client Portal", href: `/client-portal/${session.activeWorkspaceId}`, Icon: MessageSquareText }
+    { id: "client-portal", label: "Client Portal", href: `/client-portal/${session.activeWorkspaceId}`, Icon: MessageSquareText },
+    { id: "re-audit", label: "Re-Audit", href: `${workspaceBaseHref}/re-audit`, Icon: BarChart3 }
   ] satisfies Array<{ id: RankFlowModule; label: string; href: string; Icon: LucideIcon }>;
   const visibleModules = modules.filter((module) => session.visibleModules.includes(module.id));
 

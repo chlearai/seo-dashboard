@@ -20,7 +20,8 @@ export type RankFlowModule =
   | "keywords"
   | "workbook"
   | "reports"
-  | "client-portal";
+  | "client-portal"
+  | "re-audit";
 
 export type RankFlowAction =
   | "create-workspace"
