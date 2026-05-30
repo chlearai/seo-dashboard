@@ -126,6 +126,23 @@ export interface ScanComparison {
   suggestionsDelta: number;
 }
 
+export interface AttributedAction {
+  action: ActionItem;
+  category: AuditCategory;
+  scoreBefore: number;
+  scoreAfter: number;
+}
+
+export interface AuditCategoryDelta {
+  id: string;
+  name: string;
+  scoreBefore: number;
+  scoreAfter: number;
+  delta: number;
+  topIssue: string;
+  severity: Severity;
+}
+
 export interface SuggestionInboxSummary {
   total: number;
   newCount: number;

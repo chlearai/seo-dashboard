@@ -3,7 +3,10 @@ import type {
   ActionItem,
   AiBrainProfile,
   AiBrainSummary,
+  AuditCategory,
+  AuditCategoryDelta,
   AuditEvidenceSourceStatus,
+  AttributedAction,
   CrawlerFinding,
   CrawlerEvaluation,
   CrawlerPageSnapshot,
@@ -650,4 +653,88 @@ export function canPerformAction(
   if (action === "view-client-portal") return true;
 
   return false;
+}
+
+export function generateVerdictLabel(comparison: ScanComparison): string {
+  const { scoreDelta, resolvedCritical, newCritical } = comparison;
+
+  if (scoreDelta > 0 && newCritical === 0 && resolvedCritical > 0) {
+    return "Score improved with no new critical issues";
+  }
+  if (scoreDelta > 0 && newCritical > 0) {
+    return "Score improved but new critical regressions detected";
+  }
+  if (scoreDelta === 0) {
+    return "Score unchanged";
+  }
+  return `Score regressed by ${Math.abs(scoreDelta)} points`;
+}
+
+export function attributeActionsToScoreChange(
+  actions: ActionItem[],
+  sinceScan: ScanSnapshot,
+  vsScan: ScanSnapshot
+): AttributedAction[] {
+  const sinceTs = new Date(sinceScan.completedAt).getTime();
+  const vsTs = new Date(vsScan.completedAt).getTime();
+
+  return actions
+    .filter((action) => {
+      if (action.status !== "Done") return false;
+      if (!action.completedAt) return false;
+      const actionTs = new Date(action.completedAt).getTime();
+      return actionTs > vsTs && actionTs <= sinceTs;
+    })
+    .filter((action) =>
+      action.evidence.some((ev) => ev.approvalStatus === "Approved")
+    )
+    .map((action) => ({
+      action,
+      category: {
+        id: action.impactArea,
+        name: action.impactArea,
+        score: 0,
+        failedChecks: 0,
+        totalChecks: 0,
+        topIssue: "",
+        severity: action.priority
+      } as AuditCategory,
+      scoreBefore: 0,
+      scoreAfter: 0,
+    }));
+}
+
+export function generateReAuditNarrative(
+  comparison: ScanComparison,
+  attributedActions: AttributedAction[],
+  categoryDeltas: AuditCategoryDelta[]
+): string {
+  const { scoreDelta, resolvedCritical, newCritical } = comparison;
+  const verdict = generateVerdictLabel(comparison);
+  const improved = categoryDeltas.filter((c) => c.delta > 0);
+  const regressed = categoryDeltas.filter((c) => c.delta < 0);
+
+  const parts: string[] = [verdict];
+
+  if (attributedActions.length > 0) {
+    parts.push(
+      `${attributedActions.length} completed action${attributedActions.length === 1 ? "" : "s"} with approved evidence were tracked during this period.`
+    );
+  }
+
+  if (improved.length > 0) {
+    const names = improved.map((c) => c.name).join(", ");
+    parts.push(`${names} improved.`);
+  }
+
+  if (regressed.length > 0) {
+    const names = regressed.map((c) => c.name).join(", ");
+    parts.push(`${names} showed regression and may need attention before the next cycle.`);
+  }
+
+  if (newCritical > 0) {
+    parts.push(`${newCritical} new critical issue${newCritical === 1 ? "" : "s"} were detected and assigned to the workbook.`);
+  }
+
+  return parts.join(" ");
 }
