@@ -2,10 +2,12 @@ import { describe, it, expect } from "vitest";
 import {
   generateVerdictLabel,
   generateReAuditNarrative,
+  attributeActionsToScoreChange,
   type ScanComparison,
   type AttributedAction,
   type AuditCategoryDelta,
   type ActionItem,
+  type ScanSnapshot,
 } from "./rankflow-helpers";
 
 const mockComparisonImproving: ScanComparison = {
@@ -38,6 +40,32 @@ const mockComparisonUnchanged: ScanComparison = {
   newCritical: 0,
   issueDelta: { critical: 0, high: 0, medium: 0, low: 0 },
   suggestionsDelta: 0,
+};
+
+const mockSinceScan: ScanSnapshot = {
+  id: "scan-new",
+  type: "Full Site Crawl" as const,
+  completedAt: "2026-05-20",
+  status: "Completed" as const,
+  pagesCrawled: 1000,
+  keywordsChecked: 500,
+  score: 81,
+  delta: 9,
+  issues: { critical: 2, high: 9, medium: 22, low: 44 },
+  suggestionsGenerated: 55,
+};
+
+const mockVsScan: ScanSnapshot = {
+  id: "scan-old",
+  type: "Full Site Crawl" as const,
+  completedAt: "2026-05-01",
+  status: "Completed" as const,
+  pagesCrawled: 900,
+  keywordsChecked: 450,
+  score: 72,
+  delta: -3,
+  issues: { critical: 6, high: 15, medium: 25, low: 51 },
+  suggestionsGenerated: 44,
 };
 
 describe("generateVerdictLabel", () => {
@@ -101,5 +129,99 @@ describe("generateReAuditNarrative", () => {
       emptyDeltas
     );
     expect(narrative).toContain("1 completed action with approved evidence");
+  });
+
+  it("generates mixed narrative with improvement language and new criticals", () => {
+    const narrative = generateReAuditNarrative(
+      mockComparisonMixed,
+      emptyAttributed,
+      [
+        { id: "schema", name: "Schema", scoreBefore: 72, scoreAfter: 81, delta: 9, topIssue: "Course schema incomplete", severity: "high" },
+      ]
+    );
+    expect(narrative).toContain("Score improved but new critical regressions detected");
+    expect(narrative).toContain("Schema improved");
+    expect(narrative).toContain("new critical issues");
+  });
+});
+
+describe("attributeActionsToScoreChange", () => {
+  const makeAction = (overrides: Partial<ActionItem>): ActionItem =>
+    ({
+      id: "act-1",
+      workspaceId: "ws-1",
+      source: "ai-suggestion" as const,
+      sourceId: "src-1",
+      title: "Test action",
+      impactArea: "technical-seo" as const,
+      priority: "high" as const,
+      status: "Done" as const,
+      executionMode: "inside-rankflow" as const,
+      owner: "User",
+      dueDate: "2026-05-15",
+      expectedImpact: "High",
+      completedAt: "2026-05-10",
+      evidenceRequired: true,
+      evidence: [
+        {
+          id: "ev-1",
+          submittedAt: "2026-05-09",
+          submittedBy: "User",
+          evidenceType: "url" as const,
+          label: "Proof",
+          value: "https://example.com",
+          qualityScore: 5,
+          approvalStatus: "Approved" as const,
+        },
+      ],
+      impactScore: 85,
+      clientReportContribution: false,
+      ...overrides,
+    } as ActionItem);
+
+  it("includes actions completed in range with approved evidence", () => {
+    const actions: ActionItem[] = [
+      makeAction({ id: "act-1", completedAt: "2026-05-10" }),
+      makeAction({ id: "act-2", completedAt: "2026-05-15" }),
+    ];
+    const result = attributeActionsToScoreChange(actions, mockSinceScan, mockVsScan);
+    expect(result).toHaveLength(2);
+    expect(result.map((r) => r.action.id)).toEqual(["act-1", "act-2"]);
+  });
+
+  it("excludes actions completed before the vs scan", () => {
+    const actions: ActionItem[] = [
+      makeAction({ id: "act-old", completedAt: "2026-04-15" }),
+    ];
+    const result = attributeActionsToScoreChange(actions, mockSinceScan, mockVsScan);
+    expect(result).toHaveLength(0);
+  });
+
+  it("excludes actions without approved evidence", () => {
+    const actions: ActionItem[] = [
+      makeAction({
+        id: "act-pending",
+        completedAt: "2026-05-10",
+        evidence: [
+          {
+            id: "ev-1",
+            submittedAt: "2026-05-09",
+            submittedBy: "User",
+            evidenceType: "url" as const,
+            label: "Proof",
+            value: "https://example.com",
+            qualityScore: 5,
+            approvalStatus: "Pending" as const,
+          },
+        ],
+      }),
+    ];
+    const result = attributeActionsToScoreChange(actions, mockSinceScan, mockVsScan);
+    expect(result).toHaveLength(0);
+  });
+
+  it("returns empty array when no actions provided", () => {
+    const result = attributeActionsToScoreChange([], mockSinceScan, mockVsScan);
+    expect(result).toHaveLength(0);
   });
 });
