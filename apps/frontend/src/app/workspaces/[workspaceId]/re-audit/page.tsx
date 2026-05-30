@@ -37,7 +37,10 @@ export default async function ReAuditPage({ params, searchParams }: ReAuditPageP
     );
 
     const defaultSince = sinceScanId ?? currentCycle?.auditId ?? scans[0]?.id;
-    const defaultVs = vsScanId ?? currentCycle?.baselineSnapshotId ?? scans[1]?.id;
+    // baselineSnapshotId may be a metrics snapshot ID, not a scan — only use it if it matches an actual scan
+    const baselineIsValidScan = scans.some((s) => s.id === currentCycle?.baselineSnapshotId);
+    const defaultVs =
+      vsScanId ?? (baselineIsValidScan ? currentCycle?.baselineSnapshotId : scans[1]?.id);
 
     return (
       <ReAuditPageClient
