@@ -1,9 +1,13 @@
 import Link from "next/link";
 import {
   compareScans,
+  generateReAuditNarrative,
+  generateVerdictLabel,
   getActionIntelligenceSummary,
   getAiBrainSummary,
   getAuditIntelligenceSummary,
+  type AttributedAction,
+  type AuditCategoryDelta,
   type CrawlerEvaluation,
   getExpertEfficiencySummary,
   getKeywordSummary,
@@ -1132,5 +1136,239 @@ function IssueList({ issues }: { issues: string[] }) {
         </li>
       ))}
     </ul>
+  );
+}
+
+export function ReAuditComparisonModule({
+  workspace,
+  scans,
+  actions,
+  auditCategories,
+  sinceScanId,
+  vsScanId
+}: {
+  workspace: Workspace;
+  scans: ScanSnapshot[];
+  actions: ActionItem[];
+  auditCategories: AuditCategory[];
+  sinceScanId: string;
+  vsScanId: string;
+}) {
+  const sinceScan = scans.find((s) => s.id === sinceScanId) ?? scans[0];
+  const vsScan = scans.find((s) => s.id === vsScanId) ?? scans[1];
+
+  if (!sinceScan || !vsScan) {
+    return (
+      <main className="page">
+        <PageHeader
+          eyebrow="Re-Audit Comparison"
+          title={`${workspace.clientName} scan comparison`}
+          description="Select two scans to compare their scores, issues, and action impact."
+        />
+        <p className="muted">Not enough scan data available.</p>
+      </main>
+    );
+  }
+
+  const comparison = compareScans(sinceScan, vsScan);
+  const verdictLabel = generateVerdictLabel(comparison);
+
+  // Attribute completed actions with approved evidence that completed between the two scans
+  const sinceTs = new Date(sinceScan.completedAt).getTime();
+  const vsTs = new Date(vsScan.completedAt).getTime();
+  const attributedActions: AttributedAction[] = actions
+    .filter((action) => {
+      if (action.status !== "Done" || !action.completedAt) return false;
+      const actionTs = new Date(action.completedAt).getTime();
+      return actionTs > vsTs && actionTs <= sinceTs;
+    })
+    .filter((action) => action.evidence.some((ev) => ev.approvalStatus === "Approved"))
+    .map((action) => {
+      const category = auditCategories.find((c) => c.id === action.impactArea) ?? auditCategories[0];
+      return {
+        action,
+        category,
+        scoreBefore: category?.score ?? 0,
+        scoreAfter: category?.score ?? 0,
+      };
+    });
+
+  const pendingActions = actions.filter(
+    (a) =>
+      a.status === "Evidence Review" &&
+      a.completedAt &&
+      new Date(a.completedAt).getTime() <= sinceTs &&
+      new Date(a.completedAt).getTime() > vsTs
+  );
+
+  // Build category deltas
+  const categoryDeltas: AuditCategoryDelta[] = auditCategories.map((cat) => ({
+    id: cat.id,
+    name: cat.name,
+    scoreBefore: cat.score,
+    scoreAfter: cat.score,
+    delta: 0,
+    topIssue: cat.topIssue,
+    severity: cat.severity,
+  }));
+
+  const narrative = generateReAuditNarrative(comparison, attributedActions, categoryDeltas);
+
+  return (
+    <main className="page">
+      <PageHeader
+        eyebrow="Re-Audit Comparison"
+        title={`${workspace.clientName} — ${sinceScan.completedAt} vs ${vsScan.completedAt}`}
+        description="What was fixed, what regressed, and whether the tracked actions drove the score change."
+        actionHref={`/workspaces/${workspace.id}/scans`}
+        actionLabel="View scan history"
+      />
+
+      {/* Score Comparison Card */}
+      <section className="summary-grid">
+        <MetricCard
+          label="Score before"
+          value={`${vsScan.score} · ${vsScan.score >= 85 ? "Excellent" : vsScan.score >= 75 ? "Healthy" : vsScan.score >= 65 ? "Watch" : "At Risk"}`}
+          detail={vsScan.completedAt}
+        />
+        <MetricCard
+          label="Score after"
+          value={`${sinceScan.score} · ${sinceScan.score >= 85 ? "Excellent" : sinceScan.score >= 75 ? "Healthy" : sinceScan.score >= 65 ? "Watch" : "At Risk"}`}
+          detail={sinceScan.completedAt}
+        />
+        <MetricCard
+          label="Score delta"
+          value={`${comparison.scoreDelta > 0 ? "+" : ""}${comparison.scoreDelta}`}
+          detail={verdictLabel}
+        />
+        <MetricCard
+          label="Critical resolved"
+          value={comparison.resolvedCritical}
+          detail={`${comparison.newCritical} new critical regressions`}
+        />
+      </section>
+
+      {/* Severity Delta Table */}
+      <section className="table-panel">
+        <div className="table-header">
+          <div>
+            <p className="eyebrow">Issue severity</p>
+            <h2>Delta across severity buckets</h2>
+          </div>
+        </div>
+        <table className="data-table">
+          <thead>
+            <tr>
+              <th>Severity</th>
+              <th>Before</th>
+              <th>After</th>
+              <th>Delta</th>
+              <th>Net</th>
+            </tr>
+          </thead>
+          <tbody>
+            {(["critical", "high", "medium", "low"] as const).map((sev) => {
+              const before = vsScan.issues[sev];
+              const after = sinceScan.issues[sev];
+              const delta = after - before;
+              const net = delta < 0 ? "Resolved" : delta > 0 ? "New" : "Unchanged";
+              return (
+                <tr key={sev}>
+                  <td><ToneBadge label={sev} tone={sev} /></td>
+                  <td>{before}</td>
+                  <td>{after}</td>
+                  <td><Delta value={delta} /></td>
+                  <td><ToneBadge label={net} tone={net === "Resolved" ? "low" : net === "New" ? sev : "medium"} /></td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </section>
+
+      {/* Action Attribution Panel */}
+      {attributedActions.length > 0 && (
+        <section className="table-panel">
+          <div className="table-header">
+            <div>
+              <p className="eyebrow">Attribution</p>
+              <h2>Completed actions driving improvement</h2>
+            </div>
+            <span className="small-label">{attributedActions.length} actions with approved evidence</span>
+          </div>
+          <table className="data-table">
+            <thead>
+              <tr>
+                <th>Action</th>
+                <th>Category</th>
+                <th>Owner</th>
+                <th>Completed</th>
+              </tr>
+            </thead>
+            <tbody>
+              {attributedActions.map(({ action, category }) => (
+                <tr key={action.id}>
+                  <td><strong>{action.title}</strong></td>
+                  <td>{category?.name ?? action.impactArea}</td>
+                  <td>{action.owner}</td>
+                  <td>{action.completedAt}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          {pendingActions.length > 0 && (
+            <p className="muted" style={{ marginTop: "0.75rem" }}>
+              {pendingActions.length} action{pendingActions.length === 1 ? "" : "s"} still in evidence review and not yet counted.
+            </p>
+          )}
+        </section>
+      )}
+
+      {/* Category Delta Grid */}
+      {categoryDeltas.length > 0 && (
+        <section className="panel">
+          <div className="table-header">
+            <div>
+              <p className="eyebrow">By category</p>
+              <h2>Audit category score movement</h2>
+            </div>
+          </div>
+          <div className="audit-grid">
+            {categoryDeltas.map((cat) => (
+              <article
+                key={cat.id}
+                className={`audit-card ${cat.delta < 0 ? "regressed" : ""}`}
+                style={cat.delta < 0 ? { borderColor: "#E65C00" } : {}}
+              >
+                <strong>{cat.name}</strong>
+                <p>
+                  <ScorePill score={cat.scoreBefore} /> → <ScorePill score={cat.scoreAfter} />
+                </p>
+                <Delta value={cat.delta} />
+                <p className="muted">{cat.topIssue}</p>
+              </article>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {/* AI Draft Narrative */}
+      <section className="panel narrative-panel">
+        <div className="card-row">
+          <div>
+            <p className="eyebrow">AI draft</p>
+            <h2>Client report narrative</h2>
+          </div>
+          <button
+            className="button"
+            onClick={() => navigator.clipboard.writeText(narrative)}
+            type="button"
+          >
+            Copy to clipboard
+          </button>
+        </div>
+        <p className="narrative-text">{narrative}</p>
+      </section>
+    </main>
   );
 }

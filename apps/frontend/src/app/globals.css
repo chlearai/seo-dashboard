@@ -713,6 +713,10 @@ button:disabled {
   margin-bottom: 6px;
 }
 
+.audit-card.regressed {
+  border-color: #E65C00;
+}
+
 .muted {
   color: var(--text-muted);
 }
