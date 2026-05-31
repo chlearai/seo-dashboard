@@ -2,6 +2,7 @@ import { createServer, type ServerResponse } from "node:http";
 import { rankFlowRepository } from "./repositories/rankflow-repository";
 
 const port = Number(process.env.PORT ?? 4000);
+const host = process.env.HOST ?? "0.0.0.0";
 
 function jsonResponse(response: ServerResponse, statusCode: number, body: unknown) {
   response.writeHead(statusCode, {
@@ -156,6 +157,6 @@ const server = createServer(async (request, response) => {
   }
 });
 
-server.listen(port, "127.0.0.1", () => {
-  console.log(`RankFlow backend listening on http://127.0.0.1:${port}`);
+server.listen(port, host, () => {
+  console.log(`RankFlow backend listening on http://${host}:${port}`);
 });
