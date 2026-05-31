@@ -118,3 +118,13 @@ test("audit intelligence route renders hybrid evidence stack", async ({ page }) 
   await expect(page.getByText("Missing titles", { exact: true }).first()).toBeVisible();
   await expect(page.getByText("Referring domains")).toBeVisible();
 });
+
+test("re-audit route compares scans with action attribution", async ({ page }) => {
+  await page.goto("/workspaces/aurora-education/re-audit");
+  await expect(page.getByLabel("Since scan:")).toBeVisible();
+  await expect(page.getByLabel("vs scan:")).toBeVisible();
+  await expect(page.getByRole("heading", { name: /Aurora Education Group.*vs/i })).toBeVisible();
+  await expect(page.getByText("Score before")).toBeVisible();
+  await expect(page.getByText("Issue severity")).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Client report narrative" })).toBeVisible();
+});

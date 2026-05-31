@@ -3,12 +3,14 @@ import {
   generateVerdictLabel,
   generateReAuditNarrative,
   attributeActionsToScoreChange,
-  type ScanComparison,
-  type AttributedAction,
-  type AuditCategoryDelta,
-  type ActionItem,
-  type ScanSnapshot,
 } from "./rankflow-helpers";
+import type {
+  ActionItem,
+  AttributedAction,
+  AuditCategoryDelta,
+  ScanComparison,
+  ScanSnapshot,
+} from "./rankflow-types";
 
 const mockComparisonImproving: ScanComparison = {
   scoreDelta: 8,
@@ -120,6 +122,15 @@ describe("generateReAuditNarrative", () => {
     const action = {
       id: "act-1",
       action: { id: "act-1", title: "Publish FAQ schema" } as ActionItem,
+      category: {
+        id: "schema",
+        name: "Schema",
+        score: 81,
+        failedChecks: 2,
+        totalChecks: 12,
+        topIssue: "Course schema incomplete",
+        severity: "high",
+      },
       scoreBefore: 72,
       scoreAfter: 81,
     } as AttributedAction;

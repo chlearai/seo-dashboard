@@ -99,9 +99,15 @@ export interface FixtureRankFlowRepositoryOptions {
   claudeBrainConnector?: ClaudeSeoBrainConnector;
 }
 
+export function getRankFlowDataMode() {
+  return process.env.RANKFLOW_DATA_MODE ?? "live";
+}
+
 function assertSeedDataAvailable() {
-  if (process.env.NODE_ENV === "production") {
-    throw new Error("RankFlow seed data is disabled in production");
+  if (process.env.NODE_ENV === "production" && getRankFlowDataMode() !== "seed") {
+    throw new Error(
+      "RankFlow seed data is disabled in production unless RANKFLOW_DATA_MODE=seed is explicitly set for staging"
+    );
   }
 }
 

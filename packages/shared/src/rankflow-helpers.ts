@@ -709,7 +709,7 @@ export function generateReAuditNarrative(
   attributedActions: AttributedAction[],
   categoryDeltas: AuditCategoryDelta[]
 ): string {
-  const { scoreDelta, resolvedCritical, newCritical } = comparison;
+  const { newCritical } = comparison;
   const verdict = generateVerdictLabel(comparison);
   const improved = categoryDeltas.filter((c) => c.delta > 0);
   const regressed = categoryDeltas.filter((c) => c.delta < 0);

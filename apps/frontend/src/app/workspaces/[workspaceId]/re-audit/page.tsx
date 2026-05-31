@@ -3,7 +3,7 @@ import { ReAuditPageClient } from "@/components/reaudit-page-client";
 import {
   getWorkspace,
   getWorkspaceScans,
-  getWorkspaceTasks,
+  getWorkspaceActionItems,
   getWorkspaceGrowthCycles
 } from "@/lib/rankflow-api";
 
@@ -24,10 +24,10 @@ export default async function ReAuditPage({ params, searchParams }: ReAuditPageP
   const { since: sinceScanId, vs: vsScanId } = await searchParams;
 
   try {
-    const [workspace, scans, tasks, growthCycles] = await Promise.all([
+    const [workspace, scans, actions, growthCycles] = await Promise.all([
       getWorkspace(workspaceId),
       getWorkspaceScans(workspaceId),
-      getWorkspaceTasks(workspaceId),
+      getWorkspaceActionItems(workspaceId),
       getWorkspaceGrowthCycles(workspaceId)
     ]);
 
@@ -36,17 +36,17 @@ export default async function ReAuditPage({ params, searchParams }: ReAuditPageP
       c.auditId === scans[0]?.id || c.latestSnapshotId === scans[0]?.id
     );
 
-    const defaultSince = sinceScanId ?? currentCycle?.auditId ?? scans[0]?.id;
+    const defaultSince = sinceScanId ?? currentCycle?.auditId ?? scans[0]?.id ?? "";
     // baselineSnapshotId may be a metrics snapshot ID, not a scan — only use it if it matches an actual scan
     const baselineIsValidScan = scans.some((s) => s.id === currentCycle?.baselineSnapshotId);
     const defaultVs =
-      vsScanId ?? (baselineIsValidScan ? currentCycle?.baselineSnapshotId : scans[1]?.id);
+      vsScanId ?? (baselineIsValidScan ? currentCycle?.baselineSnapshotId : scans[1]?.id) ?? "";
 
     return (
       <ReAuditPageClient
         workspace={workspace}
         scans={scans}
-        actions={tasks}
+        actions={actions}
         auditCategories={workspace.auditCategories}
         defaultSince={defaultSince}
         defaultVs={defaultVs}

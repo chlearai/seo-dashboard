@@ -57,6 +57,21 @@ npm run dev:frontend
 
 The frontend reads RankFlow data through backend APIs. Shared TypeScript contracts live in `packages/shared`.
 
+## Runtime Modes
+
+RankFlow is safe to run locally and as a private staging/demo deployment with seeded data. Real customer production still requires the live repository/auth slice.
+
+- Local development: leave `NODE_ENV=development`.
+- Private staging/demo: set `NODE_ENV=production` and `RANKFLOW_DATA_MODE=seed`.
+- Customer production: set `NODE_ENV=production` and `RANKFLOW_DATA_MODE=live`, then wire the backend to Supabase/Postgres before serving traffic.
+
+The backend intentionally refuses to serve seeded fixture data in production unless `RANKFLOW_DATA_MODE=seed` is explicitly set. This prevents accidentally launching demo data as a customer production system.
+
+Copy `.env.example` into your deploy provider and set service-specific values:
+
+- Backend: `PORT`, `CORS_ORIGIN`, `RANKFLOW_DATA_MODE`, connector secrets.
+- Frontend: `RANKFLOW_API_URL`.
+
 ## Live Connector Mode
 
 The backend can merge live Google Search Console data into the audit intelligence stack when these env vars are set:
@@ -103,7 +118,21 @@ supabase/migrations/202605280003_rankflow_ai_brain.sql
 supabase/migrations/202605280004_rankflow_audit_intelligence_stack.sql
 ```
 
-The backend currently uses a fixture repository in development. In production, the seed-backed repository now fails closed instead of serving fixture data, so a live data store must be wired before production use.
+The backend currently uses a fixture repository for local development and private staging/demo mode. In production with `RANKFLOW_DATA_MODE=live`, a Supabase/Postgres repository must be wired before customer use.
+
+## Deployment
+
+Railway-oriented service configs are included:
+
+- `apps/backend/railway.toml` builds and starts the backend service, with `/health` as the health check.
+- `apps/frontend/railway.toml` builds and starts the frontend service.
+
+Recommended staging setup:
+
+- Backend service root: repo root, config: `apps/backend/railway.toml`
+- Frontend service root: repo root, config: `apps/frontend/railway.toml`
+- Backend env: `NODE_ENV=production`, `RANKFLOW_DATA_MODE=seed`, `CORS_ORIGIN=<frontend-url>`
+- Frontend env: `RANKFLOW_API_URL=<backend-url>`
 
 ## Verification
 
