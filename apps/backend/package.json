@@ -6,14 +6,17 @@
   "scripts": {
     "dev": "tsx src/server.ts",
     "build": "tsc --noEmit -p tsconfig.json",
-    "start": "tsx src/server.ts",
+    "start": "tsx src/scripts/start.ts",
+    "seed:live": "tsx src/scripts/seed-live-state.ts",
     "typecheck": "tsc --noEmit -p tsconfig.json",
     "test": "vitest run"
   },
   "dependencies": {
-    "@rankflow/shared": "0.1.0"
+    "@rankflow/shared": "0.1.0",
+    "pg": "^8.21.0"
   },
   "devDependencies": {
+    "@types/pg": "^8.20.0",
     "tsx": "^4.21.0"
   }
 }

@@ -67,6 +67,7 @@ import {
   type SemrushConnector,
   type SemrushSnapshot
 } from "../connectors/semrush";
+import { createPostgresQueryClientFromEnv, JsonPostgresRankFlowRepository } from "./postgres-rankflow-repository";
 
 export interface RankFlowRepository {
   listWorkspaces(): Promise<Workspace[]>;
@@ -100,7 +101,7 @@ export interface FixtureRankFlowRepositoryOptions {
 }
 
 export function getRankFlowDataMode() {
-  return process.env.RANKFLOW_DATA_MODE ?? "live";
+  return process.env.RANKFLOW_DATA_MODE ?? (process.env.NODE_ENV === "production" ? "live" : "seed");
 }
 
 function assertSeedDataAvailable() {
@@ -345,4 +346,11 @@ export class FixtureRankFlowRepository implements RankFlowRepository {
   }
 }
 
-export const rankFlowRepository: RankFlowRepository = new FixtureRankFlowRepository();
+export function createRankFlowRepository(): RankFlowRepository {
+  if (getRankFlowDataMode() === "live") {
+    return new JsonPostgresRankFlowRepository(createPostgresQueryClientFromEnv());
+  }
+  return new FixtureRankFlowRepository();
+}
+
+export const rankFlowRepository: RankFlowRepository = createRankFlowRepository();

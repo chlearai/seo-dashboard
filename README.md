@@ -117,9 +117,20 @@ supabase/migrations/202605280001_rankflow_local_visibility.sql
 supabase/migrations/202605280002_rankflow_growth_cycle_action_intelligence.sql
 supabase/migrations/202605280003_rankflow_ai_brain.sql
 supabase/migrations/202605280004_rankflow_audit_intelligence_stack.sql
+supabase/migrations/202605310001_rankflow_live_state.sql
 ```
 
 The backend currently uses a fixture repository for local development and private staging/demo mode. In production with `RANKFLOW_DATA_MODE=live`, a Supabase/Postgres repository must be wired before customer use.
+
+To initialize the JSON-backed live repository against a Postgres database:
+
+```bash
+DATABASE_URL=postgresql://... npm run seed:live -w @rankflow/backend
+```
+
+This writes the current typed RankFlow state into `public.rankflow_live_state`. It is suitable for bootstrapping a private live/staging database; customer production should replace this with real ingestion and auth-owned writes.
+
+On Railway, private Postgres hostnames resolve inside the deployed container. To bootstrap there, set `RANKFLOW_SEED_ON_START=1` for one deploy with `RANKFLOW_DATA_MODE=live`, then remove it after the table has been initialized.
 
 ## Deployment
 

@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { FixtureRankFlowRepository } from "../src/repositories/rankflow-repository";
+import { createRankFlowRepository, FixtureRankFlowRepository } from "../src/repositories/rankflow-repository";
+import { JsonPostgresRankFlowRepository } from "../src/repositories/postgres-rankflow-repository";
 
 function restoreEnv(key: string, value: string | undefined) {
   if (value === undefined) {
@@ -105,6 +106,20 @@ describe("FixtureRankFlowRepository", () => {
     } finally {
       restoreEnv("NODE_ENV", previousNodeEnv);
       restoreEnv("RANKFLOW_DATA_MODE", previousDataMode);
+    }
+  });
+
+  it("selects the Postgres repository when live data mode is enabled", () => {
+    const previousDataMode = process.env.RANKFLOW_DATA_MODE;
+    const previousDatabaseUrl = process.env.DATABASE_URL;
+    process.env.RANKFLOW_DATA_MODE = "live";
+    process.env.DATABASE_URL = "postgresql://rankflow:rankflow@localhost:5432/rankflow";
+
+    try {
+      expect(createRankFlowRepository()).toBeInstanceOf(JsonPostgresRankFlowRepository);
+    } finally {
+      restoreEnv("RANKFLOW_DATA_MODE", previousDataMode);
+      restoreEnv("DATABASE_URL", previousDatabaseUrl);
     }
   });
 });
