@@ -71,6 +71,7 @@ Copy `.env.example` into your deploy provider and set service-specific values:
 
 - Backend: `PORT`, `CORS_ORIGIN`, `RANKFLOW_DATA_MODE`, connector secrets.
 - Frontend: `RANKFLOW_API_URL`.
+- Railway/Nixpacks: set `NIXPACKS_NODE_VERSION=24` for both services because Next.js 16 requires Node 20.9+.
 
 ## Live Connector Mode
 
@@ -133,6 +134,7 @@ Recommended staging setup:
 - Frontend service root: repo root, config: `apps/frontend/railway.toml`
 - Backend env: `NODE_ENV=production`, `RANKFLOW_DATA_MODE=seed`, `CORS_ORIGIN=<frontend-url>`
 - Frontend env: `RANKFLOW_API_URL=<backend-url>`
+- Both services: `NIXPACKS_NODE_VERSION=24`
 
 ## Verification
 
