@@ -1,6 +1,7 @@
 import type {
   ActionItem,
   AiBrainProfile,
+  AiWorkflowConsole,
   AiSuggestion,
   AuditCategory,
   AuditIntelligenceStack,
@@ -17,6 +18,7 @@ import type {
   WorkbookTask,
   Workspace
 } from "@rankflow/shared";
+import { buildAiWorkflowConsole } from "@rankflow/shared";
 import {
   actionItemsByWorkspace,
   aiBrainByWorkspace,
@@ -88,6 +90,7 @@ export interface RankFlowRepository {
   getOwnCrawler(workspaceId: string): Promise<CrawlerEvaluation | undefined>;
   getScreamingFrog(workspaceId: string): Promise<CrawlerEvaluation | undefined>;
   getAiBrain(workspaceId: string): Promise<AiBrainProfile | undefined>;
+  getAiWorkflowConsole(workspaceId: string): Promise<AiWorkflowConsole>;
   getAuditIntelligence(workspaceId: string): Promise<AuditIntelligenceStack | undefined>;
 }
 
@@ -298,6 +301,15 @@ export class FixtureRankFlowRepository implements RankFlowRepository {
   async getAiBrain(workspaceId: string) {
     assertSeedDataAvailable();
     return aiBrainByWorkspace[workspaceId];
+  }
+
+  async getAiWorkflowConsole(workspaceId: string) {
+    assertSeedDataAvailable();
+    return buildAiWorkflowConsole({
+      workspaceId,
+      brain: aiBrainByWorkspace[workspaceId],
+      actions: actionItemsByWorkspace[workspaceId] ?? []
+    });
   }
 
   async getAuditIntelligence(workspaceId: string) {

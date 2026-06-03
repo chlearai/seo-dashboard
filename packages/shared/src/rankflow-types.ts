@@ -547,6 +547,64 @@ export interface AiBrainSummary {
   clientNarratives: number;
 }
 
+export type AiWorkflowStatus =
+  | "needs-approval"
+  | "in-execution"
+  | "blocked-by-proof"
+  | "report-ready"
+  | "measured";
+
+export interface AiWorkflowSummary {
+  recommendations: number;
+  needsApproval: number;
+  inExecution: number;
+  blockedByProof: number;
+  reportReady: number;
+  measured: number;
+}
+
+export interface AiWorkflowItem {
+  id: string;
+  title: string;
+  reason: string;
+  priority: Severity;
+  expectedLift: string;
+  status: AiWorkflowStatus;
+  humanGate: string;
+  evidenceState: string;
+  actionId?: string;
+  owner?: string;
+  dueDate?: string;
+}
+
+export interface AiWorkflowNarrative {
+  id: string;
+  title: string;
+  audience: AiBrainNarrative["audience"];
+  summary: string;
+  state: "draft" | "human-approved";
+}
+
+export interface AiWorkflowReAuditProof {
+  label: string;
+  measuredActions: number;
+  blockedActions: number;
+}
+
+export interface AiWorkflowConsole {
+  workspaceId: string;
+  title: string;
+  subtitle: string;
+  status: AiBrainStatus;
+  automationMode: AiBrainAutomationMode;
+  confidenceScore: number;
+  dataCoverageScore: number;
+  summary: AiWorkflowSummary;
+  workflowItems: AiWorkflowItem[];
+  narratives: AiWorkflowNarrative[];
+  reAuditProof: AiWorkflowReAuditProof;
+}
+
 export type AuditEvidenceSource =
   | "own-crawler"
   | "screaming-frog"

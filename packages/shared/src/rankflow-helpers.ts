@@ -3,6 +3,9 @@ import type {
   ActionItem,
   AiBrainProfile,
   AiBrainSummary,
+  AiWorkflowConsole,
+  AiWorkflowItem,
+  AiWorkflowStatus,
   AuditCategory,
   AuditCategoryDelta,
   AuditEvidenceSourceStatus,
@@ -232,6 +235,163 @@ export function getAiBrainSummary(brain: AiBrainProfile): AiBrainSummary {
     approvalRequired: brain.recommendations.filter((recommendation) => recommendation.requiresApproval).length,
     highRisks: brain.risks.filter((risk) => risk.severity === "high" || risk.severity === "critical").length,
     clientNarratives: brain.narratives.filter((narrative) => narrative.audience === "client").length
+  };
+}
+
+function hasApprovedEvidence(action: ActionItem) {
+  return action.evidence.some((evidence) => evidence.approvalStatus === "Approved");
+}
+
+function hasPendingEvidence(action: ActionItem) {
+  return action.evidence.some((evidence) => evidence.approvalStatus === "Pending");
+}
+
+function getWorkflowStatus(action: ActionItem | undefined, requiresApproval: boolean): AiWorkflowStatus {
+  if (!action) {
+    return requiresApproval ? "needs-approval" : "report-ready";
+  }
+
+  if (action.status === "Done" && hasApprovedEvidence(action)) {
+    return "measured";
+  }
+
+  if (action.evidenceRequired && hasPendingEvidence(action)) {
+    return "blocked-by-proof";
+  }
+
+  if (action.status === "In Progress" || action.status === "Evidence Review") {
+    return "in-execution";
+  }
+
+  return requiresApproval ? "needs-approval" : "report-ready";
+}
+
+function getHumanGate(status: AiWorkflowStatus, requiresApproval: boolean) {
+  if (status === "measured") {
+    return "Approved evidence";
+  }
+  if (status === "report-ready") {
+    return "Human approved narrative";
+  }
+  return requiresApproval ? "Needs HOD approval" : "Human approval optional";
+}
+
+function getEvidenceState(status: AiWorkflowStatus, action: ActionItem | undefined) {
+  if (status === "report-ready") {
+    return "Ready for report";
+  }
+  if (!action) {
+    return "No linked action";
+  }
+  if (status === "measured") {
+    return "Measured in re-audit";
+  }
+  if (action.evidenceRequired && hasPendingEvidence(action)) {
+    return "Pending evidence approval";
+  }
+  if (action.evidenceRequired && action.evidence.length === 0) {
+    return "No proof submitted";
+  }
+  return action.evidenceRequired ? "Proof required" : "Proof optional";
+}
+
+export function buildAiWorkflowConsole({
+  workspaceId,
+  brain,
+  actions
+}: {
+  workspaceId: string;
+  brain: AiBrainProfile | undefined;
+  actions: ActionItem[];
+}): AiWorkflowConsole {
+  const measuredActions = actions.filter(
+    (action) => action.status === "Done" && hasApprovedEvidence(action) && action.clientReportContribution
+  ).length;
+  const blockedActions = actions.filter(
+    (action) =>
+      action.status !== "Done" &&
+      action.evidenceRequired &&
+      (action.evidence.length === 0 || action.evidence.some((evidence) => evidence.approvalStatus === "Pending"))
+  ).length;
+
+  if (!brain) {
+    return {
+      workspaceId,
+      title: "AI-native SEO operating system",
+      subtitle: "Human-approved AI workflow is waiting for connected intelligence.",
+      status: "Needs Data",
+      automationMode: "approval-required",
+      confidenceScore: 0,
+      dataCoverageScore: 0,
+      summary: {
+        recommendations: 0,
+        needsApproval: 0,
+        inExecution: 0,
+        blockedByProof: 0,
+        reportReady: 0,
+        measured: 0
+      },
+      workflowItems: [],
+      narratives: [],
+      reAuditProof: {
+        label: "Measured in re-audit",
+        measuredActions: 0,
+        blockedActions: 0
+      }
+    };
+  }
+
+  const workflowItems: AiWorkflowItem[] = brain.recommendations.map((recommendation) => {
+    const action = actions.find((candidate) => candidate.id === recommendation.targetAction);
+    const status = getWorkflowStatus(action, recommendation.requiresApproval);
+
+    return {
+      id: recommendation.id,
+      title: recommendation.title,
+      reason: recommendation.reason,
+      priority: recommendation.priority,
+      expectedLift: recommendation.expectedLift,
+      status,
+      humanGate: getHumanGate(status, recommendation.requiresApproval),
+      evidenceState: getEvidenceState(status, action),
+      actionId: action?.id,
+      owner: action?.owner,
+      dueDate: action?.dueDate
+    };
+  });
+
+  const narratives = brain.narratives.map((narrative) => ({
+    id: narrative.id,
+    title: narrative.title,
+    audience: narrative.audience,
+    summary: narrative.summary,
+    state: narrative.audience === "client" ? "human-approved" as const : "draft" as const
+  }));
+
+  return {
+    workspaceId,
+    title: "AI-native SEO operating system",
+    subtitle: "Evidence-led AI recommendations move through human approval, execution, reporting, and re-audit proof.",
+    status: brain.status,
+    automationMode: brain.automationMode,
+    confidenceScore: brain.confidenceScore,
+    dataCoverageScore: brain.dataCoverageScore,
+    summary: {
+      recommendations: workflowItems.length,
+      needsApproval: workflowItems.filter((item) => item.humanGate === "Needs HOD approval").length,
+      inExecution: workflowItems.filter((item) => item.status === "in-execution").length,
+      blockedByProof: workflowItems.filter((item) => item.status === "blocked-by-proof").length,
+      reportReady: workflowItems.filter((item) => item.status === "report-ready").length +
+        narratives.filter((narrative) => narrative.audience === "client").length,
+      measured: measuredActions
+    },
+    workflowItems,
+    narratives,
+    reAuditProof: {
+      label: "Measured in re-audit",
+      measuredActions,
+      blockedActions
+    }
   };
 }
 

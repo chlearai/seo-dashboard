@@ -100,11 +100,15 @@ test("screaming frog route renders imported crawl evidence", async ({ page }) =>
 
 test("AI brain route renders approval gated system intelligence", async ({ page }) => {
   await page.goto("/workspaces/aurora-education/ai-brain");
-  await expect(page.getByRole("heading", { name: /Aurora Education Group AI brain/i })).toBeVisible();
-  await expect(page.getByText("Brain Status")).toBeVisible();
+  await expect(page.getByRole("heading", { name: /Aurora Education Group AI-native SEO operating system/i })).toBeVisible();
+  await expect(page.getByText("Human-approved AI workflow")).toBeVisible();
+  await expect(page.getByText("AI OS Status")).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Approval queue" })).toBeVisible();
+  await expect(page.getByText("Blocked by Proof")).toBeVisible();
+  await expect(page.getByText("Re-audit proof", { exact: true })).toBeVisible();
   await expect(page.getByText("Organic leads rose after FAQ schema and title updates")).toBeVisible();
   await expect(page.getByText("Prioritize GEO evidence blocks on MBA pages")).toBeVisible();
-  await expect(page.getByText("Requires approval").first()).toBeVisible();
+  await expect(page.getByText("Needs HOD approval").first()).toBeVisible();
   await expect(page.getByText("External GEO evidence work lacks approved proof")).toBeVisible();
 });
 

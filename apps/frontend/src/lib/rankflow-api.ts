@@ -1,6 +1,7 @@
 import type {
   ActionItem,
   AiBrainProfile,
+  AiWorkflowConsole,
   AiSuggestion,
   AuditCategory,
   AuditIntelligenceStack,
@@ -91,6 +92,10 @@ export async function getWorkspaceExpertEfficiency(workspaceId: string) {
 
 export async function getWorkspaceAiBrain(workspaceId: string) {
   return fetchJson<AiBrainProfile>(`/api/workspaces/${workspaceId}/ai-brain`);
+}
+
+export async function getWorkspaceAiWorkflow(workspaceId: string) {
+  return fetchJson<AiWorkflowConsole>(`/api/workspaces/${workspaceId}/ai-workflow`);
 }
 
 export async function getWorkspaceAuditIntelligence(workspaceId: string) {

@@ -65,7 +65,7 @@ const server = createServer(async (request, response) => {
     }
 
     const workspaceCollectionMatch = url.pathname.match(
-      /^\/api\/workspaces\/([^/]+)\/(scans|audit-categories|suggestions|tasks|keywords|reports|local-visibility|growth-cycles|organic-metrics|action-items|expert-efficiency|own-crawler|screaming-frog|ai-brain|audit-intelligence)$/
+      /^\/api\/workspaces\/([^/]+)\/(scans|audit-categories|suggestions|tasks|keywords|reports|local-visibility|growth-cycles|organic-metrics|action-items|expert-efficiency|own-crawler|screaming-frog|ai-brain|ai-workflow|audit-intelligence)$/
     );
     if (workspaceCollectionMatch) {
       const [, workspaceId, collection] = workspaceCollectionMatch;
@@ -138,6 +138,11 @@ const server = createServer(async (request, response) => {
 
       if (collection === "ai-brain") {
         jsonResponse(response, 200, await rankFlowRepository.getAiBrain(workspaceId));
+        return;
+      }
+
+      if (collection === "ai-workflow") {
+        jsonResponse(response, 200, await rankFlowRepository.getAiWorkflowConsole(workspaceId));
         return;
       }
 

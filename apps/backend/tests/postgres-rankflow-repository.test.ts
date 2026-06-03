@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { JsonPostgresRankFlowRepository, type QueryClient } from "../src/repositories/postgres-rankflow-repository";
-import type { RankFlowSession, Workspace } from "@rankflow/shared";
+import type { ActionItem, AiBrainProfile, RankFlowSession, Workspace } from "@rankflow/shared";
 
 class FakeQueryClient implements QueryClient {
   constructor(private readonly records: Record<string, unknown>) {}
@@ -72,6 +72,47 @@ const session: RankFlowSession = {
   }
 };
 
+const aiBrain: AiBrainProfile = {
+  status: "Active",
+  lastRunAt: "2026-05-28 14:30",
+  confidenceScore: 86,
+  dataCoverageScore: 78,
+  automationMode: "approval-required",
+  insights: [],
+  recommendations: [
+    {
+      id: "rec-geo",
+      title: "Prioritize GEO evidence blocks on MBA pages",
+      reason: "GEO visibility remains the weakest growth lever.",
+      targetAction: "act-geo",
+      priority: "high",
+      expectedLift: "Improve AI answer presence by 8-12 points",
+      requiresApproval: true
+    }
+  ],
+  narratives: [],
+  risks: []
+};
+
+const action: ActionItem = {
+  id: "act-geo",
+  workspaceId: "aurora-education",
+  source: "local-visibility",
+  sourceId: "aurora-geo",
+  title: "Add cited outcomes evidence to MBA program pages",
+  impactArea: "geo",
+  priority: "high",
+  status: "In Progress",
+  executionMode: "outside-rankflow",
+  owner: "Rohan Mehta",
+  dueDate: "2026-05-30",
+  expectedImpact: "Increase AI answer presence",
+  evidenceRequired: true,
+  evidence: [],
+  impactScore: 51,
+  clientReportContribution: false
+};
+
 describe("JsonPostgresRankFlowRepository", () => {
   it("loads session and workspaces from rankflow_live_state records", async () => {
     const repository = new JsonPostgresRankFlowRepository(
@@ -93,5 +134,30 @@ describe("JsonPostgresRankFlowRepository", () => {
     await expect(repository.listWorkspaces()).rejects.toThrow(
       "RankFlow live data is not initialized. Seed rankflow_live_state before using RANKFLOW_DATA_MODE=live."
     );
+  });
+
+  it("derives the AI workflow console from JSON live state", async () => {
+    const repository = new JsonPostgresRankFlowRepository(
+      new FakeQueryClient({
+        aiBrainByWorkspace: { "aurora-education": aiBrain },
+        actionItemsByWorkspace: { "aurora-education": [action] }
+      })
+    );
+
+    await expect(repository.getAiWorkflowConsole("aurora-education")).resolves.toMatchObject({
+      workspaceId: "aurora-education",
+      summary: {
+        recommendations: 1,
+        needsApproval: 1,
+        inExecution: 1
+      },
+      workflowItems: [
+        expect.objectContaining({
+          id: "rec-geo",
+          status: "in-execution",
+          actionId: "act-geo"
+        })
+      ]
+    });
   });
 });

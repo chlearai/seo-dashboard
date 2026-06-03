@@ -4,7 +4,6 @@ import {
   generateReAuditNarrative,
   generateVerdictLabel,
   getActionIntelligenceSummary,
-  getAiBrainSummary,
   getAuditIntelligenceSummary,
   type AttributedAction,
   type AuditCategoryDelta,
@@ -20,6 +19,7 @@ import {
   type ActionItem,
   type AiBrainProfile,
   type AiSuggestion,
+  type AiWorkflowConsole,
   type AuditCategory,
   type AuditIntelligenceStack,
   type ExpertEfficiency,
@@ -730,30 +730,74 @@ export function OrganicGrowthCycleModule({
 
 export function AiBrainModule({
   brain,
+  workflow,
   workspace
 }: {
   brain: AiBrainProfile;
+  workflow: AiWorkflowConsole;
   workspace: Workspace;
 }) {
-  const summary = getAiBrainSummary(brain);
-
   return (
     <main className="page">
       <PageHeader
-        eyebrow="LLM Brain"
-        title={`${workspace.clientName} AI brain`}
-        description="Approval-gated system intelligence that reads RankFlow signals, explains performance movement, recommends actions, flags risk, and prepares report narratives."
+        eyebrow="Human-approved AI workflow"
+        title={`${workspace.clientName} ${workflow.title}`}
+        description={workflow.subtitle}
         actionHref={`/workspaces/${workspace.id}/growth-cycle`}
         actionLabel="Open growth cycle"
       />
 
       <section className="summary-grid">
-        <MetricCard label="Brain Status" value={summary.status} detail={`Last run ${brain.lastRunAt}`} />
-        <MetricCard label="Confidence" value={`${summary.confidenceScore}%`} detail="Reasoning confidence" />
-        <MetricCard label="Data Coverage" value={`${summary.dataCoverageScore}%`} detail="Connected signal completeness" />
-        <MetricCard label="Approval Needed" value={summary.approvalRequired} detail={brain.automationMode} />
-        <MetricCard label="High Risks" value={summary.highRisks} detail="Needs HOD attention" />
-        <MetricCard label="Client Narratives" value={summary.clientNarratives} detail="Report-ready drafts" />
+        <MetricCard label="AI OS Status" value={workflow.status} detail={`Last run ${brain.lastRunAt}`} />
+        <MetricCard label="Needs Approval" value={workflow.summary.needsApproval} detail={workflow.automationMode} />
+        <MetricCard label="In Execution" value={workflow.summary.inExecution} detail="Human-approved workflow" />
+        <MetricCard label="Blocked by Proof" value={workflow.summary.blockedByProof} detail="Evidence gate" />
+        <MetricCard label="Report Ready" value={workflow.summary.reportReady} detail="Narrative and proof" />
+        <MetricCard label="Measured" value={workflow.summary.measured} detail={workflow.reAuditProof.label} />
+      </section>
+
+      <section className="brain-grid">
+        <div className="panel">
+          <p className="eyebrow">AI operating loop</p>
+          <h2>Approval queue</h2>
+          <div className="module-list">
+            {workflow.workflowItems.map((item) => (
+              <article className="brain-card" key={item.id}>
+                <div className="card-row">
+                  <strong>{item.title}</strong>
+                  <ToneBadge label={item.priority} tone={item.priority} />
+                </div>
+                <p>{item.reason}</p>
+                <p className="muted">{item.expectedLift}</p>
+                <div className="evidence-row">
+                  <span className="evidence-chip">{item.humanGate}</span>
+                  <span className="evidence-chip">{item.evidenceState}</span>
+                  <span className="evidence-chip">{item.status}</span>
+                </div>
+                {item.owner ? (
+                  <p className="muted">
+                    Owner {item.owner} · Due {item.dueDate}
+                  </p>
+                ) : null}
+              </article>
+            ))}
+          </div>
+        </div>
+
+        <div className="panel">
+          <p className="eyebrow">Evidence coverage</p>
+          <h2>Execution handoff</h2>
+          <dl className="detail-list">
+            <div><dt>Reasoning confidence</dt><dd>{workflow.confidenceScore}%</dd></div>
+            <div><dt>Connected signal coverage</dt><dd>{workflow.dataCoverageScore}%</dd></div>
+            <div><dt>Total recommendations</dt><dd>{workflow.summary.recommendations}</dd></div>
+            <div><dt>Blocked actions</dt><dd>{workflow.reAuditProof.blockedActions}</dd></div>
+          </dl>
+          <p className="muted">
+            RankFlow stays human-approved in V1: AI can diagnose, prioritize, and draft the workflow, but execution
+            and client-facing proof stay gated by HOD and evidence review.
+          </p>
+        </div>
       </section>
 
       <section className="brain-grid">
@@ -775,26 +819,6 @@ export function AiBrainModule({
             ))}
           </div>
         </div>
-
-        <div className="panel">
-          <p className="eyebrow">Recommended action</p>
-          <h2>Approval queue</h2>
-          <div className="module-list">
-            {brain.recommendations.map((recommendation) => (
-              <article className="brain-card" key={recommendation.id}>
-                <div className="card-row">
-                  <strong>{recommendation.title}</strong>
-                  <ToneBadge label={recommendation.priority} tone={recommendation.priority} />
-                </div>
-                <p>{recommendation.reason}</p>
-                <p className="muted">{recommendation.expectedLift}</p>
-                <span className="evidence-chip">
-                  {recommendation.requiresApproval ? "Requires approval" : "Draft only"}
-                </span>
-              </article>
-            ))}
-          </div>
-        </div>
       </section>
 
       <section className="brain-grid">
@@ -802,15 +826,22 @@ export function AiBrainModule({
           <p className="eyebrow">Report intelligence</p>
           <h2>Narratives</h2>
           <div className="module-list">
-            {brain.narratives.map((narrative) => (
+            {workflow.narratives.map((narrative) => (
               <article className="brain-card" key={narrative.id}>
                 <div className="card-row">
                   <strong>{narrative.title}</strong>
-                  <span className="evidence-chip">{narrative.audience}</span>
+                  <span className="evidence-chip">{narrative.state}</span>
                 </div>
                 <p>{narrative.summary}</p>
               </article>
             ))}
+          </div>
+          <div className="insight-strip">
+            <strong>Re-audit proof</strong>
+            <span>
+              {workflow.reAuditProof.measuredActions} measured action{workflow.reAuditProof.measuredActions === 1 ? "" : "s"} ready
+              for client-safe attribution.
+            </span>
           </div>
         </div>
 

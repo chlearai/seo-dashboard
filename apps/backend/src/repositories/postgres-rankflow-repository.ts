@@ -3,6 +3,7 @@ import { getHodSummary } from "../rankflow-data";
 import type {
   ActionItem,
   AiBrainProfile,
+  AiWorkflowConsole,
   AiSuggestion,
   AuditCategory,
   AuditIntelligenceStack,
@@ -19,6 +20,7 @@ import type {
   WorkbookTask,
   Workspace
 } from "@rankflow/shared";
+import { buildAiWorkflowConsole } from "@rankflow/shared";
 import type { RankFlowRepository } from "./rankflow-repository";
 
 export interface QueryClient {
@@ -117,6 +119,14 @@ export class JsonPostgresRankFlowRepository implements RankFlowRepository {
 
   async getAiBrain(workspaceId: string): Promise<AiBrainProfile | undefined> {
     return (await this.getState<Record<string, AiBrainProfile>>("aiBrainByWorkspace"))[workspaceId];
+  }
+
+  async getAiWorkflowConsole(workspaceId: string): Promise<AiWorkflowConsole> {
+    return buildAiWorkflowConsole({
+      workspaceId,
+      brain: await this.getAiBrain(workspaceId),
+      actions: await this.listActionItems(workspaceId)
+    });
   }
 
   async getAuditIntelligence(workspaceId: string): Promise<AuditIntelligenceStack | undefined> {
