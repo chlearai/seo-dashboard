@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { buildAiWorkflowConsole } from "./rankflow-helpers";
-import type { ActionItem, AiBrainProfile } from "./rankflow-types";
+import type { ActionItem, AiBrainProfile, AiWorkflowApproval } from "./rankflow-types";
 
 const brain: AiBrainProfile = {
   status: "Active",
@@ -180,6 +180,54 @@ describe("rankflow AI workflow helpers", () => {
       measuredActions: 1,
       label: "Measured in re-audit"
     });
+  });
+
+  it("folds persisted human approval decisions into the workflow", () => {
+    const approvals: AiWorkflowApproval[] = [
+      {
+        recommendationId: "rec-geo",
+        decision: "approved",
+        decidedAt: "2026-06-03T09:00:00.000Z",
+        decidedBy: "Maya Iyer"
+      },
+      {
+        recommendationId: "rec-proof",
+        decision: "rejected",
+        decidedAt: "2026-06-03T09:05:00.000Z",
+        decidedBy: "Maya Iyer"
+      }
+    ];
+
+    const console = buildAiWorkflowConsole({
+      workspaceId: "aurora-education",
+      brain,
+      actions,
+      approvals
+    });
+
+    expect(console.summary).toMatchObject({
+      needsApproval: 0,
+      approved: 1,
+      rejected: 1
+    });
+
+    expect(console.workflowItems).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          id: "rec-geo",
+          approvalDecision: "approved",
+          humanGate: "Approved by Maya Iyer",
+          status: "in-execution"
+        }),
+        expect.objectContaining({
+          id: "rec-proof",
+          approvalDecision: "rejected",
+          humanGate: "Rejected by Maya Iyer",
+          status: "rejected",
+          evidenceState: "Not approved for execution"
+        })
+      ])
+    );
   });
 
   it("returns an empty console when the workspace has no AI brain profile", () => {

@@ -3,6 +3,7 @@ import type {
   ActionItem,
   AiBrainProfile,
   AiBrainSummary,
+  AiWorkflowApproval,
   AiWorkflowConsole,
   AiWorkflowItem,
   AiWorkflowStatus,
@@ -266,7 +267,17 @@ function getWorkflowStatus(action: ActionItem | undefined, requiresApproval: boo
   return requiresApproval ? "needs-approval" : "report-ready";
 }
 
-function getHumanGate(status: AiWorkflowStatus, requiresApproval: boolean) {
+function getHumanGate(
+  status: AiWorkflowStatus,
+  requiresApproval: boolean,
+  approval: AiWorkflowApproval | undefined
+) {
+  if (approval?.decision === "approved") {
+    return `Approved by ${approval.decidedBy}`;
+  }
+  if (approval?.decision === "rejected") {
+    return `Rejected by ${approval.decidedBy}`;
+  }
   if (status === "measured") {
     return "Approved evidence";
   }
@@ -277,6 +288,9 @@ function getHumanGate(status: AiWorkflowStatus, requiresApproval: boolean) {
 }
 
 function getEvidenceState(status: AiWorkflowStatus, action: ActionItem | undefined) {
+  if (status === "rejected") {
+    return "Not approved for execution";
+  }
   if (status === "report-ready") {
     return "Ready for report";
   }
@@ -298,11 +312,13 @@ function getEvidenceState(status: AiWorkflowStatus, action: ActionItem | undefin
 export function buildAiWorkflowConsole({
   workspaceId,
   brain,
-  actions
+  actions,
+  approvals = []
 }: {
   workspaceId: string;
   brain: AiBrainProfile | undefined;
   actions: ActionItem[];
+  approvals?: AiWorkflowApproval[];
 }): AiWorkflowConsole {
   const measuredActions = actions.filter(
     (action) => action.status === "Done" && hasApprovedEvidence(action) && action.clientReportContribution
@@ -326,6 +342,8 @@ export function buildAiWorkflowConsole({
       summary: {
         recommendations: 0,
         needsApproval: 0,
+        approved: 0,
+        rejected: 0,
         inExecution: 0,
         blockedByProof: 0,
         reportReady: 0,
@@ -343,7 +361,10 @@ export function buildAiWorkflowConsole({
 
   const workflowItems: AiWorkflowItem[] = brain.recommendations.map((recommendation) => {
     const action = actions.find((candidate) => candidate.id === recommendation.targetAction);
-    const status = getWorkflowStatus(action, recommendation.requiresApproval);
+    const approval = approvals.find((candidate) => candidate.recommendationId === recommendation.id);
+    const status = approval?.decision === "rejected"
+      ? "rejected"
+      : getWorkflowStatus(action, recommendation.requiresApproval);
 
     return {
       id: recommendation.id,
@@ -352,8 +373,11 @@ export function buildAiWorkflowConsole({
       priority: recommendation.priority,
       expectedLift: recommendation.expectedLift,
       status,
-      humanGate: getHumanGate(status, recommendation.requiresApproval),
+      humanGate: getHumanGate(status, recommendation.requiresApproval, approval),
       evidenceState: getEvidenceState(status, action),
+      approvalDecision: approval?.decision,
+      decidedAt: approval?.decidedAt,
+      decidedBy: approval?.decidedBy,
       actionId: action?.id,
       owner: action?.owner,
       dueDate: action?.dueDate
@@ -379,6 +403,8 @@ export function buildAiWorkflowConsole({
     summary: {
       recommendations: workflowItems.length,
       needsApproval: workflowItems.filter((item) => item.humanGate === "Needs HOD approval").length,
+      approved: workflowItems.filter((item) => item.approvalDecision === "approved").length,
+      rejected: workflowItems.filter((item) => item.approvalDecision === "rejected").length,
       inExecution: workflowItems.filter((item) => item.status === "in-execution").length,
       blockedByProof: workflowItems.filter((item) => item.status === "blocked-by-proof").length,
       reportReady: workflowItems.filter((item) => item.status === "report-ready").length +

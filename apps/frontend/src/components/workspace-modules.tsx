@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { AiWorkflowApprovalControls } from "./ai-workflow-approval-controls";
 import {
   compareScans,
   generateReAuditNarrative,
@@ -778,6 +779,14 @@ export function AiBrainModule({
                   <p className="muted">
                     Owner {item.owner} · Due {item.dueDate}
                   </p>
+                ) : null}
+                {item.humanGate === "Needs HOD approval" || item.approvalDecision ? (
+                  <AiWorkflowApprovalControls
+                    workspaceId={workspace.id}
+                    recommendationId={item.id}
+                    approvalDecision={item.approvalDecision}
+                    decidedBy={item.decidedBy}
+                  />
                 ) : null}
               </article>
             ))}

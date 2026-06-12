@@ -9,6 +9,12 @@ class FakeQueryClient implements QueryClient {
     if (!sql.includes("rankflow_live_state")) {
       throw new Error(`Unexpected SQL: ${sql}`);
     }
+
+    if (sql.includes("insert into public.rankflow_live_state")) {
+      this.records[String(params[0])] = params[1];
+      return { rows: [] as T[] };
+    }
+
     const key = String(params[0]);
     const record = this.records[key];
     return {
@@ -156,6 +162,35 @@ describe("JsonPostgresRankFlowRepository", () => {
           id: "rec-geo",
           status: "in-execution",
           actionId: "act-geo"
+        })
+      ]
+    });
+  });
+
+  it("persists an AI workflow approval decision into JSON live state", async () => {
+    const records = {
+      aiBrainByWorkspace: { "aurora-education": aiBrain },
+      actionItemsByWorkspace: { "aurora-education": [action] }
+    };
+    const repository = new JsonPostgresRankFlowRepository(new FakeQueryClient(records));
+
+    await repository.saveAiWorkflowApproval("aurora-education", {
+      recommendationId: "rec-geo",
+      decision: "approved",
+      decidedAt: "2026-06-03T09:00:00.000Z",
+      decidedBy: "Maya Iyer"
+    });
+
+    await expect(repository.getAiWorkflowConsole("aurora-education")).resolves.toMatchObject({
+      summary: {
+        needsApproval: 0,
+        approved: 1
+      },
+      workflowItems: [
+        expect.objectContaining({
+          id: "rec-geo",
+          approvalDecision: "approved",
+          humanGate: "Approved by Maya Iyer"
         })
       ]
     });

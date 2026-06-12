@@ -109,6 +109,8 @@ test("AI brain route renders approval gated system intelligence", async ({ page 
   await expect(page.getByText("Organic leads rose after FAQ schema and title updates")).toBeVisible();
   await expect(page.getByText("Prioritize GEO evidence blocks on MBA pages")).toBeVisible();
   await expect(page.getByText("Needs HOD approval").first()).toBeVisible();
+  await page.getByRole("button", { name: "Approve" }).first().click();
+  await expect(page.getByText("Approved by Maya Iyer").first()).toBeVisible();
   await expect(page.getByText("External GEO evidence work lacks approved proof")).toBeVisible();
 });
 

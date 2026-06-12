@@ -552,11 +552,23 @@ export type AiWorkflowStatus =
   | "in-execution"
   | "blocked-by-proof"
   | "report-ready"
-  | "measured";
+  | "measured"
+  | "rejected";
+
+export type AiWorkflowApprovalDecision = "approved" | "rejected";
+
+export interface AiWorkflowApproval {
+  recommendationId: string;
+  decision: AiWorkflowApprovalDecision;
+  decidedAt: string;
+  decidedBy: string;
+}
 
 export interface AiWorkflowSummary {
   recommendations: number;
   needsApproval: number;
+  approved: number;
+  rejected: number;
   inExecution: number;
   blockedByProof: number;
   reportReady: number;
@@ -572,6 +584,9 @@ export interface AiWorkflowItem {
   status: AiWorkflowStatus;
   humanGate: string;
   evidenceState: string;
+  approvalDecision?: AiWorkflowApprovalDecision;
+  decidedAt?: string;
+  decidedBy?: string;
   actionId?: string;
   owner?: string;
   dueDate?: string;

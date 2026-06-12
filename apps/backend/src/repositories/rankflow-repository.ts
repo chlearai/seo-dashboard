@@ -1,6 +1,7 @@
 import type {
   ActionItem,
   AiBrainProfile,
+  AiWorkflowApproval,
   AiWorkflowConsole,
   AiSuggestion,
   AuditCategory,
@@ -91,6 +92,7 @@ export interface RankFlowRepository {
   getScreamingFrog(workspaceId: string): Promise<CrawlerEvaluation | undefined>;
   getAiBrain(workspaceId: string): Promise<AiBrainProfile | undefined>;
   getAiWorkflowConsole(workspaceId: string): Promise<AiWorkflowConsole>;
+  saveAiWorkflowApproval(workspaceId: string, approval: AiWorkflowApproval): Promise<AiWorkflowApproval>;
   getAuditIntelligence(workspaceId: string): Promise<AuditIntelligenceStack | undefined>;
 }
 
@@ -199,6 +201,7 @@ export class FixtureRankFlowRepository implements RankFlowRepository {
   private readonly ahrefsConnector: AhrefsConnector;
   private readonly semrushConnector: SemrushConnector;
   private readonly claudeBrainConnector: ClaudeSeoBrainConnector;
+  private readonly aiWorkflowApprovalsByWorkspace: Record<string, AiWorkflowApproval[]>;
 
   constructor(options: FixtureRankFlowRepositoryOptions = {}) {
     this.googleSearchConsoleConnector =
@@ -211,6 +214,7 @@ export class FixtureRankFlowRepository implements RankFlowRepository {
     this.semrushConnector = options.semrushConnector ?? createSemrushConnector(createSemrushLiveConfigFromEnv());
     this.claudeBrainConnector =
       options.claudeBrainConnector ?? createClaudeSeoBrainConnector(createClaudeSeoBrainLiveConfigFromEnv());
+    this.aiWorkflowApprovalsByWorkspace = {};
   }
 
   async listWorkspaces() {
@@ -308,8 +312,19 @@ export class FixtureRankFlowRepository implements RankFlowRepository {
     return buildAiWorkflowConsole({
       workspaceId,
       brain: aiBrainByWorkspace[workspaceId],
-      actions: actionItemsByWorkspace[workspaceId] ?? []
+      actions: actionItemsByWorkspace[workspaceId] ?? [],
+      approvals: this.aiWorkflowApprovalsByWorkspace[workspaceId] ?? []
     });
+  }
+
+  async saveAiWorkflowApproval(workspaceId: string, approval: AiWorkflowApproval) {
+    assertSeedDataAvailable();
+    const current = this.aiWorkflowApprovalsByWorkspace[workspaceId] ?? [];
+    this.aiWorkflowApprovalsByWorkspace[workspaceId] = [
+      ...current.filter((item) => item.recommendationId !== approval.recommendationId),
+      approval
+    ];
+    return approval;
   }
 
   async getAuditIntelligence(workspaceId: string) {

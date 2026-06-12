@@ -3,6 +3,7 @@ import { getHodSummary } from "../rankflow-data";
 import type {
   ActionItem,
   AiBrainProfile,
+  AiWorkflowApproval,
   AiWorkflowConsole,
   AiSuggestion,
   AuditCategory,
@@ -43,6 +44,24 @@ export class JsonPostgresRankFlowRepository implements RankFlowRepository {
       throw new Error(missingLiveStateMessage);
     }
     return row.payload;
+  }
+
+  private async getOptionalState<T>(key: string, fallback: T): Promise<T> {
+    const result = await this.client.query<{ payload: T }>(
+      "select payload from public.rankflow_live_state where key = $1 limit 1",
+      [key]
+    );
+    return result.rows[0]?.payload ?? fallback;
+  }
+
+  private async upsertState<T>(key: string, payload: T): Promise<void> {
+    await this.client.query(
+      `insert into public.rankflow_live_state (key, payload, updated_at)
+       values ($1, $2, now())
+       on conflict (key) do update
+       set payload = excluded.payload, updated_at = now()`,
+      [key, payload]
+    );
   }
 
   private async getWorkspaces() {
@@ -122,11 +141,34 @@ export class JsonPostgresRankFlowRepository implements RankFlowRepository {
   }
 
   async getAiWorkflowConsole(workspaceId: string): Promise<AiWorkflowConsole> {
+    const approvalsByWorkspace = await this.getOptionalState<Record<string, AiWorkflowApproval[]>>(
+      "aiWorkflowApprovalsByWorkspace",
+      {}
+    );
     return buildAiWorkflowConsole({
       workspaceId,
       brain: await this.getAiBrain(workspaceId),
-      actions: await this.listActionItems(workspaceId)
+      actions: await this.listActionItems(workspaceId),
+      approvals: approvalsByWorkspace[workspaceId] ?? []
     });
+  }
+
+  async saveAiWorkflowApproval(workspaceId: string, approval: AiWorkflowApproval): Promise<AiWorkflowApproval> {
+    const approvalsByWorkspace = await this.getOptionalState<Record<string, AiWorkflowApproval[]>>(
+      "aiWorkflowApprovalsByWorkspace",
+      {}
+    );
+    const current = approvalsByWorkspace[workspaceId] ?? [];
+    const next = {
+      ...approvalsByWorkspace,
+      [workspaceId]: [
+        ...current.filter((item) => item.recommendationId !== approval.recommendationId),
+        approval
+      ]
+    };
+
+    await this.upsertState("aiWorkflowApprovalsByWorkspace", next);
+    return approval;
   }
 
   async getAuditIntelligence(workspaceId: string): Promise<AuditIntelligenceStack | undefined> {

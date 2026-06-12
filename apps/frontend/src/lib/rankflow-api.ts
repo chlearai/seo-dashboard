@@ -21,9 +21,14 @@ import type {
 
 const apiBaseUrl = process.env.RANKFLOW_API_URL ?? "http://127.0.0.1:4000";
 
-async function fetchJson<T>(path: string): Promise<T> {
+async function fetchJson<T>(path: string, init?: RequestInit): Promise<T> {
   const response = await fetch(`${apiBaseUrl}${path}`, {
-    cache: "no-store"
+    cache: "no-store",
+    ...init,
+    headers: {
+      "Content-Type": "application/json",
+      ...init?.headers
+    }
   });
 
   if (!response.ok) {
@@ -96,6 +101,26 @@ export async function getWorkspaceAiBrain(workspaceId: string) {
 
 export async function getWorkspaceAiWorkflow(workspaceId: string) {
   return fetchJson<AiWorkflowConsole>(`/api/workspaces/${workspaceId}/ai-workflow`);
+}
+
+export async function saveWorkspaceAiWorkflowApproval({
+  workspaceId,
+  recommendationId,
+  decision,
+  decidedBy
+}: {
+  workspaceId: string;
+  recommendationId: string;
+  decision: "approved" | "rejected";
+  decidedBy: string;
+}) {
+  return fetchJson(
+    `/api/workspaces/${workspaceId}/ai-workflow/${recommendationId}`,
+    {
+      method: "POST",
+      body: JSON.stringify({ decision, decidedBy })
+    }
+  );
 }
 
 export async function getWorkspaceAuditIntelligence(workspaceId: string) {
